@@ -1,0 +1,80 @@
+import Link from 'next/link';
+import { fetchArticlesFromAPI } from '@/data/articleAPI';
+import { Clock, Eye } from 'lucide-react';
+
+export const metadata = {
+  title: 'All Articles | ExtraHand Help Center',
+  description: 'Browse all help articles and guides',
+};
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+export default async function ArticlesPage() {
+  const articles = await fetchArticlesFromAPI();
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-3">All Articles</h1>
+        <p className="text-base text-gray-600">
+          Browse through all our help articles and guides
+        </p>
+      </div>
+
+      <div className="grid gap-6">
+        {articles.map((article) => (
+          <Link
+            key={article.id}
+            href={`/article/${article.id}`}
+            className="bg-white rounded-xl border-2 border-gray-200 p-6 hover:border-primary hover:shadow-lg transition-all group"
+          >
+            <div className="flex items-start justify-between gap-6">
+              {/* Article Image Thumbnail */}
+              {article.imageUrl && (
+                <div className="flex-shrink-0">
+                  <img 
+                    src={article.imageUrl} 
+                    alt={article.title}
+                    className="w-48 h-32 object-cover rounded-lg"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                </div>
+              )}
+              
+              <div className="flex-1">
+                <div className="flex items-center space-x-2 mb-2">
+                  <span className="text-xs font-medium text-primary bg-yellow-100 px-2.5 py-0.5 rounded-full">
+                    {article.category}
+                  </span>
+                </div>
+                <h2 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-primary-dark transition-colors">
+                  {article.title}
+                </h2>
+                <p className="text-sm text-gray-600 mb-3 line-clamp-2">{article.description}</p>
+                <div className="flex items-center space-x-4 text-sm text-gray-500">
+                  <div className="flex items-center space-x-1">
+                    <Clock className="h-4 w-4" />
+                    <span>
+                      {new Date(article.updatedAt).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <Eye className="h-4 w-4" />
+                    <span>{article.views} views</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
