@@ -65,11 +65,11 @@ ENV HOSTNAME="0.0.0.0"
 # Copy public assets
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
-# Copy standalone build if available, otherwise copy .next
+# Copy standalone build - this includes server.js, node_modules, and package.json
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Remove unnecessary files
+# Remove unnecessary files (but keep node_modules from standalone build)
 RUN rm -rf \
     .git \
     .gitignore \
@@ -77,10 +77,7 @@ RUN rm -rf \
     *.md \
     .dockerignore \
     Dockerfile \
-    node_modules \
-    package-lock.json \
     tsconfig.json \
-    next.config.js \
     postcss.config.mjs \
     tailwind.config.ts
 
