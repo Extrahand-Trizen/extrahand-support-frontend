@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { fetchArticlesFromAPI } from '@/data/articleAPI';
 import { Clock, Eye } from 'lucide-react';
+import ArticleImage from '@/components/ArticleImage';
 
 export const metadata = {
   title: 'All Articles | ExtraHand Help Center',
@@ -22,8 +23,16 @@ export default async function ArticlesPage() {
         </p>
       </div>
 
-      <div className="grid gap-6">
-        {articles.map((article) => (
+      {articles.length === 0 ? (
+        <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-8 text-center">
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">No Articles Found</h2>
+          <p className="text-gray-600">
+            Articles will appear here once they are published by administrators.
+          </p>
+        </div>
+      ) : (
+        <div className="grid gap-6">
+          {articles.map((article) => (
           <Link
             key={article.id}
             href={`/article/${article.id}`}
@@ -33,13 +42,10 @@ export default async function ArticlesPage() {
               {/* Article Image Thumbnail */}
               {article.imageUrl && (
                 <div className="flex-shrink-0">
-                  <img 
+                  <ArticleImage 
                     src={article.imageUrl} 
                     alt={article.title}
                     className="w-48 h-32 object-cover rounded-lg"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
                   />
                 </div>
               )}
@@ -74,7 +80,8 @@ export default async function ArticlesPage() {
             </div>
           </Link>
         ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Mail, Phone, MessageCircle, Send } from 'lucide-react';
 import LiveChat from '@/components/LiveChat';
 
@@ -15,6 +15,19 @@ export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Prevent body scroll when chat is open
+  useEffect(() => {
+    if (isLiveChatOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isLiveChatOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

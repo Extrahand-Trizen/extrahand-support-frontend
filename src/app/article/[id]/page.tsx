@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { fetchArticlesFromAPI, fetchArticleByIdFromAPI } from '@/data/articleAPI';
 import { ArrowLeft, Clock, Eye, ThumbsUp, ThumbsDown, Share2, Bookmark, TrendingUp } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import ArticleImage from '@/components/ArticleImage';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -74,13 +75,10 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
               {/* Article Image - Full Width at Top */}
               {article.imageUrl && (
                 <div className="w-full">
-                  <img 
+                  <ArticleImage 
                     src={article.imageUrl} 
                     alt={article.title}
                     className="w-full h-auto max-h-[500px] object-cover"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
                   />
                 </div>
               )}
@@ -193,13 +191,10 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
                       </blockquote>
                     ),
                     img: ({ src, alt }) => (
-                      <img
-                        src={src}
+                      <ArticleImage
+                        src={src || ''}
                         alt={alt || ''}
                         className="w-full h-auto rounded-lg shadow-md my-6"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
                       />
                     ),
                     a: ({ children, href }) => (
