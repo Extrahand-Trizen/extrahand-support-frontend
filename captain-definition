@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 2,
+  "dockerfilePath": "./Dockerfile",
+  "buildArguments": {
+    "CACHE_BUST": "latest"
+  },
+  "expose": {
+    "api": {
+      "containerPort": 3004,
+      "httpPort": 80,
+      "httpsPort": 443
+    }
+  },
+  "healthcheck": {
+    "path": "/",
+    "port": 3004,
+    "interval": 30,
+    "timeout": 10,
+    "retries": 3,
+    "startPeriod": 60
+  },
+  "notify": {
+    "webhook": "",
+    "slack": "",
+    "discord": ""
+  },
+  "customDomain": "",
+  "forceSsl": true,
+  "appName": "extrahand-support-frontend",
+  "hasPersistentData": false,
+  "description": "ExtraHand Support Portal Frontend - Modern help center built with Next.js 14",
+  "instanceCount": 1,
+  "tags": [
+    "nextjs",
+    "react",
+    "typescript",
+    "tailwindcss",
+    "support",
+    "extrahand",
+    "frontend"
+  ],
+  "envVars": {
+    "NODE_ENV": "production",
+    "PORT": "3004",
+    "HOSTNAME": "0.0.0.0",
+    "NEXT_TELEMETRY_DISABLED": "1",
+    "NEXT_PUBLIC_API_URL": "http://srv-captain--extrahand-platform-support-service:5001",
+    "CHATBOT_API_URL": "YOUR_CHATBOT_SERVICE_URL_HERE"
+  },
+  "volumes": [],
+  "restart": {
+    "policy": "unless-stopped",
+    "maximumRetryCount": 10
+  },
+  "resources": {
+    "memory": "512Mi",
+    "cpu": "0.5"
+  },
+  "networking": {
+    "publishAllPorts": false,
+    "enableTcpProxy": false
+  }
+}
