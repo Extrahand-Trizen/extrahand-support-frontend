@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+// Use server-side environment variable (without NEXT_PUBLIC_ prefix for server-side code)
+// Fallback to NEXT_PUBLIC_API_URL for compatibility
+const BACKEND_URL = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
 export async function POST(request: Request) {
   try {
