@@ -1,11 +1,16 @@
 import { NextResponse } from 'next/server';
 
-// Use server-side environment variable (without NEXT_PUBLIC_ prefix for server-side code)
-// Fallback to NEXT_PUBLIC_API_URL for compatibility
-const BACKEND_URL = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
-
 export async function POST(request: Request) {
   try {
+    // Get backend URL from environment - prioritize BACKEND_API_URL for server-side
+    // This must be set in CapRover environment variables
+    const BACKEND_URL = process.env.BACKEND_API_URL || 
+                       process.env.NEXT_PUBLIC_API_URL || 
+                       'http://localhost:5001';
+    
+    // Log for debugging (remove in production if needed)
+    console.log('Backend URL:', BACKEND_URL);
+    
     const body = await request.json();
     const { email, password } = body;
 
@@ -18,7 +23,10 @@ export async function POST(request: Request) {
     }
 
     // Forward the request to the backend
-    const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
+    const backendUrl = `${BACKEND_URL}/api/auth/login`;
+    console.log('Forwarding login request to:', backendUrl);
+    
+    const response = await fetch(backendUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -44,7 +44,7 @@
     "PORT": "3004",
     "HOSTNAME": "0.0.0.0",
     "NEXT_TELEMETRY_DISABLED": "1",
-    "BACKEND_API_URL": "http://srv-captain--extrahand-platform-support-service:5001",
+    "BACKEND_API_URL": "https://extrahand-support-backend.apps.extrahand.in",
     "NEXT_PUBLIC_API_URL": "https://extrahand-support-backend.apps.extrahand.in",
     "CHATBOT_API_URL": "YOUR_CHATBOT_SERVICE_URL_HERE"
   },
