@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+/// <reference types="react" />
+import React, { useState } from 'react';
 import { ChevronDown, ChevronRight, ArrowLeft, Check } from 'lucide-react';
 
 interface IssueType {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Send, X, User, Headphones, LogIn, History, MessageSquare, ArrowLeft, CheckCircle, Star } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import IssueSelector from './IssueSelector';
