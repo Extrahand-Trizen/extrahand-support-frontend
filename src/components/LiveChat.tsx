@@ -763,7 +763,7 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
           </p>
           <button
             onClick={initiateChat}
-            disabled={requestStatus === 'requesting' || !isLoggedIn}
+            disabled={!isLoggedIn}
             className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-4 rounded-xl font-semibold hover:from-purple-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoggedIn ? 'Request Support Agent' : 'Login to Get Support'}
