@@ -711,17 +711,20 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
                     {ticket.rating && (
                       <div className="mb-2">
                         <div className="flex items-center space-x-1">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star
-                              key={star}
-                              className={`h-3 w-3 ${
-                                star <= ticket.rating
-                                  ? 'fill-yellow-400 text-yellow-400'
-                                  : 'text-gray-300'
-                              }`}
-                            />
-                          ))}
-                          <span className="text-xs text-gray-600 ml-1">({ticket.rating}/5)</span>
+                          {[1, 2, 3, 4, 5].map((star) => {
+                            const rating = ticket.rating ?? 0;
+                            return (
+                              <Star
+                                key={star}
+                                className={`h-3 w-3 ${
+                                  star <= rating
+                                    ? 'fill-yellow-400 text-yellow-400'
+                                    : 'text-gray-300'
+                                }`}
+                              />
+                            );
+                          })}
+                          <span className="text-xs text-gray-600 ml-1">({ticket.rating ?? 0}/5)</span>
                         </div>
                         {ticket.feedback && (
                           <p className="text-xs text-gray-500 italic mt-1 line-clamp-2">
