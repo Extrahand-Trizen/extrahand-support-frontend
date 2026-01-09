@@ -190,13 +190,25 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
                         {children}
                       </blockquote>
                     ),
-                    img: ({ src, alt }) => (
-                      <ArticleImage
-                        src={typeof src === 'string' ? src : ''}
-                        alt={typeof alt === 'string' ? alt : ''}
-                        className="w-full h-auto rounded-lg shadow-md my-6"
-                      />
-                    ),
+                    img: ({ src, alt }: { src?: string | Blob | null; alt?: string | null }) => {
+                      // Convert src to string - in markdown context, images are always URLs (strings)
+                      // Handle the case where react-markdown might pass Blob (though unlikely in markdown)
+                      let imageSrc: string = '';
+                      if (typeof src === 'string') {
+                        imageSrc = src;
+                      } else if (src instanceof Blob) {
+                        // If it's a Blob, we can't use it directly - skip the image
+                        imageSrc = '';
+                      }
+                      const imageAlt: string = typeof alt === 'string' ? alt : '';
+                      return imageSrc ? (
+                        <ArticleImage
+                          src={imageSrc}
+                          alt={imageAlt}
+                          className="w-full h-auto rounded-lg shadow-md my-6"
+                        />
+                      ) : null;
+                    },
                     a: ({ children, href }) => (
                       <a
                         href={href}
