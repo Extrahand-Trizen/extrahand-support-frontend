@@ -192,8 +192,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
                     ),
                     img: ({ src, alt }) => (
                       <ArticleImage
-                        src={src || ''}
-                        alt={alt || ''}
+                        src={typeof src === 'string' ? src : ''}
+                        alt={typeof alt === 'string' ? alt : ''}
                         className="w-full h-auto rounded-lg shadow-md my-6"
                       />
                     ),
