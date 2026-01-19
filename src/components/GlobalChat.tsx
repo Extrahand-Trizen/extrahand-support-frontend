@@ -29,25 +29,25 @@ export default function GlobalChat() {
     <>
       {/* Chatbot Component */}
       {chatbotSessionId && (
-        <Chatbot 
-          isOpen={isChatbotOpen} 
-          onClose={() => setIsChatbotOpen(false)} 
+        <Chatbot
+          isOpen={isChatbotOpen}
+          onClose={() => setIsChatbotOpen(false)}
           sessionId={chatbotSessionId}
           onOpenLiveChat={handleOpenLiveChat}
         />
       )}
 
       {/* Live Chat Component */}
-      <LiveChat 
-        isOpen={isLiveChatOpen} 
-        onClose={() => setIsLiveChatOpen(false)} 
+      <LiveChat
+        isOpen={isLiveChatOpen}
+        onClose={() => setIsLiveChatOpen(false)}
       />
 
       {/* Floating Chatbot Button */}
       {!isChatbotOpen && !isLiveChatOpen && (
         <button
           onClick={() => setIsChatbotOpen(true)}
-          className="fixed bottom-6 right-6 bg-gradient-to-r from-yellow-400 to-amber-500 text-gray-900 rounded-full p-4 shadow-2xl hover:shadow-3xl hover:scale-110 transition-all z-40 group"
+          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 bg-gradient-to-r from-yellow-400 to-amber-500 text-gray-900 rounded-full p-3 sm:p-4 shadow-2xl hover:shadow-3xl hover:scale-110 transition-all z-40 group"
           aria-label="Open chatbot"
         >
           <Bot className="h-6 w-6" />

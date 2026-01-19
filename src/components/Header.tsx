@@ -3,24 +3,27 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Search, Menu, X, Phone, Mail, MessageCircle, User, LogOut } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { ChevronDown, User as UserIcon, Settings, ShieldCheck } from 'lucide-react';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [mounted, setMounted] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   useEffect(() => {
     setMounted(true);
-    
+
     // Check if user is logged in
     const checkAuth = () => {
       const accessToken = localStorage.getItem('accessToken');
       const userStr = localStorage.getItem('user');
-      
+
       if (accessToken && userStr) {
         try {
           const userData = JSON.parse(userStr);
@@ -36,18 +39,28 @@ export default function Header() {
         setUser(null);
       }
     };
-    
+
     checkAuth();
-    
+
     // Listen for storage changes (for multi-tab sync)
     window.addEventListener('storage', checkAuth);
-    
+
     // Listen for custom auth events
     window.addEventListener('auth-change', checkAuth);
-    
+
+    // Close dropdown on click outside
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsProfileOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
     return () => {
       window.removeEventListener('storage', checkAuth);
       window.removeEventListener('auth-change', checkAuth);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
 
@@ -139,22 +152,63 @@ export default function Header() {
 
             {/* Auth Buttons */}
             {isLoggedIn ? (
-              <div className="flex items-center space-x-3 ml-2">
-                <div className="flex items-center space-x-2 px-3 py-1.5 bg-gray-50 rounded-lg">
-                  <div className="w-8 h-8 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+              <div className="relative ml-4" ref={dropdownRef}>
+                <button
+                  onClick={() => setIsProfileOpen(!isProfileOpen)}
+                  className="flex items-center space-x-2 p-1.5 hover:bg-gray-50 rounded-xl transition-all border border-transparent hover:border-gray-200"
+                >
+                  <div className="w-9 h-9 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-lg flex items-center justify-center text-white font-bold shadow-sm group-hover:shadow transition-all">
                     {user?.name?.charAt(0).toUpperCase()}
                   </div>
-                  <span className="text-sm font-medium text-gray-700">
-                    {user?.name}
-                  </span>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="px-4 py-2 text-red-600 hover:text-white hover:bg-red-600 border border-red-200 rounded-lg transition-all font-medium flex items-center space-x-2"
-                >
-                  <LogOut className="h-4 w-4" />
-                  <span>Logout</span>
+                  <div className="hidden lg:block text-left">
+                    <p className="text-sm font-bold text-gray-900 leading-tight">
+                      {user?.name}
+                    </p>
+                    <p className="text-[10px] text-gray-500 font-medium">Customer Account</p>
+                  </div>
+                  <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${isProfileOpen ? 'rotate-180' : ''}`} />
                 </button>
+
+                {/* Dropdown Menu */}
+                {isProfileOpen && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 animate-fadeIn origin-top-right">
+                    <div className="px-4 py-3 border-b border-gray-50 mb-1">
+                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Account</p>
+                      <p className="text-sm font-bold text-gray-900 truncate">{user?.email}</p>
+                    </div>
+
+                    <Link
+                      href="/profile"
+                      className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 transition-colors"
+                      onClick={() => setIsProfileOpen(false)}
+                    >
+                      <UserIcon className="h-4 w-4" />
+                      <span className="font-medium">My Profile</span>
+                    </Link>
+
+                    <Link
+                      href="/account-settings"
+                      className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 transition-colors"
+                      onClick={() => setIsProfileOpen(false)}
+                    >
+                      <Settings className="h-4 w-4" />
+                      <span className="font-medium">Account Settings</span>
+                    </Link>
+
+                    <div className="my-1 border-t border-gray-50"></div>
+
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setIsProfileOpen(false);
+                      }}
+                      className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span className="font-bold">Logout</span>
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="flex items-center space-x-2 ml-2">
@@ -212,7 +266,7 @@ export default function Header() {
               >
                 Contact Us
               </Link>
-              
+
               {isLoggedIn ? (
                 <>
                   <div className="px-4 py-3 bg-gray-50 rounded-lg border-t border-gray-200 mt-2 pt-4 mx-4">
@@ -255,7 +309,7 @@ export default function Header() {
                   </Link>
                 </>
               )}
-              
+
               <Link
                 href="/contact"
                 className="mx-4 mt-2 px-4 py-3 bg-gradient-to-r from-blue-400 to-blue-500 text-white rounded-lg hover:shadow-lg transition-all font-semibold text-center flex items-center justify-center space-x-2"

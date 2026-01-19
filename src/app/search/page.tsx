@@ -1,15 +1,48 @@
 'use client';
 
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { searchArticles } from '@/data/articles';
+import { fetchArticlesFromAPI } from '@/data/articleAPI';
+import { Article } from '@/types';
 import { Search, ArrowLeft, Clock, Eye } from 'lucide-react';
-import { Suspense } from 'react';
 
 function SearchResults() {
   const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
-  const results = query ? searchArticles(query) : [];
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadArticles = async () => {
+      try {
+        const data = await fetchArticlesFromAPI();
+        setArticles(data);
+      } catch (err) {
+        console.error('Error loading articles for search:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadArticles();
+  }, []);
+
+  const results = query
+    ? articles.filter(a =>
+      a.title.toLowerCase().includes(query.toLowerCase()) ||
+      a.description.toLowerCase().includes(query.toLowerCase()) ||
+      a.content.toLowerCase().includes(query.toLowerCase())
+    )
+    : [];
+
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+        <div className="animate-spin h-10 w-10 border-4 border-yellow-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+        <p className="text-gray-600 font-medium">Searching articles...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

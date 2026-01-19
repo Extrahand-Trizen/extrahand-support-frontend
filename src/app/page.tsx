@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { 
-  Search, BookOpen, CreditCard, Shield, Users, FileText, 
+import {
+  Search, BookOpen, CreditCard, Shield, Users, FileText,
   MessageCircle, Sparkles, TrendingUp, Clock,
   CheckCircle2, ChevronDown, ChevronRight, Zap, Award,
   HeartHandshake, Lightbulb, Bot, X, Loader2, ArrowRight
@@ -10,14 +10,14 @@ import {
 import { useState, useEffect, useRef } from 'react';
 import { searchArticles } from '@/data/articles';
 
-const supportCategories = [
+const INITIAL_CATEGORIES = [
   {
     title: 'Understanding ExtraHand',
     description: 'Learn about our platform and services',
     icon: BookOpen,
     href: '/support/understanding-extrahand',
     color: 'from-blue-400 to-blue-600',
-    subcategories: ['What is ExtraHand?', 'Availability', 'Getting Started']
+    key: 'Understanding ExtraHand'
   },
   {
     title: 'Login/Account Management',
@@ -25,7 +25,7 @@ const supportCategories = [
     icon: Users,
     href: '/support/account-management',
     color: 'from-purple-400 to-purple-600',
-    subcategories: ['Create Account', 'Profile Settings', 'Verification']
+    key: 'Login/Account Management'
   },
   {
     title: 'Payments & Refunds',
@@ -33,7 +33,7 @@ const supportCategories = [
     icon: CreditCard,
     href: '/support/payments-refunds',
     color: 'from-green-400 to-green-600',
-    subcategories: ['Making Payments', 'Releasing Payments', 'Refunds']
+    key: 'Payments & Refunds'
   },
   {
     title: 'Managing Tasks',
@@ -41,7 +41,7 @@ const supportCategories = [
     icon: FileText,
     href: '/support/managing-tasks',
     color: 'from-orange-400 to-orange-600',
-    subcategories: ['Post a Task', 'Edit Tasks', 'Task Completion']
+    key: 'Managing Tasks'
   },
   {
     title: 'Tips for Customers',
@@ -49,7 +49,7 @@ const supportCategories = [
     icon: Lightbulb,
     href: '/support/tips-customers',
     color: 'from-yellow-400 to-yellow-600',
-    subcategories: ['Choosing Helpers', 'Communication Tips']
+    key: 'Tips for Customers'
   },
   {
     title: 'Trust & Safety',
@@ -57,36 +57,11 @@ const supportCategories = [
     icon: Shield,
     href: '/support/trust-safety',
     color: 'from-red-400 to-red-600',
-    subcategories: ['Safety Guidelines', 'Privacy Policy', 'Report Issues']
+    key: 'Trust & Safety'
   },
 ];
 
-const featuredGuides = [
-  {
-    title: 'How to post your first task',
-    description: 'Step-by-step guide for beginners',
-    category: 'Getting Started',
-    href: '/article/1',
-    readTime: '5 min read',
-    icon: Sparkles,
-  },
-  {
-    title: 'Secure payment methods',
-    description: 'Learn about our payment security',
-    category: 'Payments',
-    href: '/article/2',
-    readTime: '4 min read',
-    icon: Shield,
-  },
-  {
-    title: 'Choosing the right helper',
-    description: 'Tips for finding quality helpers',
-    category: 'Tips',
-    href: '/article/3',
-    readTime: '6 min read',
-    icon: Award,
-  },
-];
+
 
 const faqs = [
   {
@@ -130,16 +105,61 @@ export default function HomePage() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const [articles, setArticles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const response = await fetch('http://localhost:5001/api/articles');
+        const result = await response.json();
+        if (result.success) {
+          setArticles(result.data);
+        }
+      } catch (error) {
+        console.error('Error fetching articles:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArticles();
+  }, []);
+
+  // Featured guides will be the top 3 most viewed articles
+  const featuredGuides = articles
+    .sort((aAny: any, bAny: any) => (bAny.views || 0) - (aAny.views || 0))
+    .slice(0, 3)
+    .map((article: any) => ({
+      title: article.title,
+      description: article.description,
+      category: article.category,
+      href: `/article/${article._id}`,
+      readTime: '5 min read',
+      icon: Sparkles,
+    }));
+
+  const getArticlesForCategory = (categoryKey: string) => {
+    return articles
+      .filter(article => article.category === categoryKey)
+      .slice(0, 3);
+  };
+
   useEffect(() => {
     if (searchQuery.trim().length > 0) {
-      const results = searchArticles(searchQuery).slice(0, 5);
+      // Use dynamic articles for search suggestions
+      const results = articles.filter(
+        article =>
+          article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          article.description.toLowerCase().includes(searchQuery.toLowerCase())
+      ).slice(0, 5);
       setSuggestions(results);
       setShowSuggestions(true);
     } else {
       setSuggestions([]);
       setShowSuggestions(false);
     }
-  }, [searchQuery]);
+  }, [searchQuery, articles]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -151,11 +171,10 @@ export default function HomePage() {
 
   const getTabClassName = (tab: string) => {
     const isActive = activeTab === tab;
-    return `px-6 py-3 rounded-full font-semibold transition-all ${
-      isActive
-        ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-gray-900 shadow-lg'
-        : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
-    }`;
+    return `px-6 py-3 rounded-full font-semibold transition-all ${isActive
+      ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-gray-900 shadow-lg'
+      : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
+      }`;
   };
 
   return (
@@ -166,21 +185,21 @@ export default function HomePage() {
           <div className="absolute top-20 left-10 w-72 h-72 bg-yellow-300/20 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute bottom-10 right-10 w-96 h-96 bg-amber-300/20 rounded-full blur-3xl animate-pulse"></div>
         </div>
-        
+
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center mb-12">
             <div className="inline-flex items-center space-x-2 bg-white border-2 border-yellow-300 rounded-full px-4 py-2 mb-6 shadow-sm">
               <Sparkles className="h-4 w-4 text-yellow-600" />
               <span className="text-sm font-semibold text-gray-700">24/7 Support Available</span>
             </div>
-            
-            <h1 className="text-6xl font-extrabold text-gray-900 mb-4 leading-tight">
+
+            <h1 className="text-4xl sm:text-6xl font-extrabold text-gray-900 mb-4 leading-tight">
               Need Help?
               <span className="block text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 via-amber-600 to-orange-600">
                 We've Got You Covered
               </span>
             </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
               Get instant answers, explore guides, or connect with our support team
             </p>
           </div>
@@ -193,11 +212,11 @@ export default function HomePage() {
                 <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 text-gray-400 h-6 w-6 z-10" />
                 <input
                   type="text"
-                  placeholder="Search for help articles, guides, FAQs..."
+                  placeholder="Search articles, guides, FAQs..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => searchQuery.trim() && setShowSuggestions(true)}
-                  className="w-full pl-16 pr-6 py-5 rounded-2xl text-lg focus:outline-none focus:ring-4 focus:ring-yellow-200 relative z-10"
+                  className="w-full pl-12 sm:pl-16 pr-6 py-4 sm:py-5 rounded-2xl text-base sm:text-lg focus:outline-none focus:ring-4 focus:ring-yellow-200 relative z-10"
                   autoComplete="off"
                 />
               </div>
@@ -211,8 +230,8 @@ export default function HomePage() {
                   <div className="max-h-96 overflow-y-auto">
                     {suggestions.map((article) => (
                       <Link
-                        key={article.id}
-                        href={`/article/${article.id}`}
+                        key={article._id || article.id}
+                        href={`/article/${article._id || article.id}`}
                         onClick={() => {
                           setShowSuggestions(false);
                           setSearchQuery('');
@@ -275,17 +294,17 @@ export default function HomePage() {
           </div>
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
             <div className="bg-white/80 backdrop-blur rounded-xl p-4 text-center border border-gray-200">
-              <div className="text-3xl font-bold text-yellow-600">500+</div>
+              <div className="text-2xl sm:text-3xl font-bold text-yellow-600">500+</div>
               <div className="text-sm text-gray-600">Help Articles</div>
             </div>
             <div className="bg-white/80 backdrop-blur rounded-xl p-4 text-center border border-gray-200">
-              <div className="text-3xl font-bold text-amber-600">24/7</div>
+              <div className="text-2xl sm:text-3xl font-bold text-amber-600">24/7</div>
               <div className="text-sm text-gray-600">Support</div>
             </div>
             <div className="bg-white/80 backdrop-blur rounded-xl p-4 text-center border border-gray-200">
-              <div className="text-3xl font-bold text-orange-600">98%</div>
+              <div className="text-2xl sm:text-3xl font-bold text-orange-600">98%</div>
               <div className="text-sm text-gray-600">Satisfaction</div>
             </div>
           </div>
@@ -300,8 +319,10 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {supportCategories.map((category) => {
+          {INITIAL_CATEGORIES.map((category) => {
             const Icon = category.icon;
+            const categoryArticles = getArticlesForCategory(category.key);
+
             return (
               <Link
                 key={category.href}
@@ -324,12 +345,21 @@ export default function HomePage() {
                 </p>
 
                 <div className="space-y-1">
-                  {category.subcategories.slice(0, 3).map((sub, idx) => (
-                    <div key={idx} className="flex items-center text-xs text-gray-500">
-                      <ChevronRight className="h-3 w-3 mr-1 text-gray-400 group-hover:text-yellow-600 transition-colors" />
-                      <span className="group-hover:text-gray-700 transition-colors">{sub}</span>
+                  {loading ? (
+                    <div className="animate-pulse space-y-2">
+                      <div className="h-3 bg-gray-100 rounded w-3/4"></div>
+                      <div className="h-3 bg-gray-100 rounded w-1/2"></div>
                     </div>
-                  ))}
+                  ) : categoryArticles.length > 0 ? (
+                    categoryArticles.map((article, idx) => (
+                      <div key={article._id || idx} className="flex items-center text-xs text-gray-500">
+                        <ChevronRight className="h-3 w-3 mr-1 text-gray-400 group-hover:text-yellow-600 transition-colors" />
+                        <span className="group-hover:text-gray-700 transition-colors line-clamp-1">{article.title}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-xs text-gray-400 italic">No articles yet</div>
+                  )}
                 </div>
 
                 <div className="flex items-center text-yellow-600 font-semibold text-xs group-hover:text-yellow-700 mt-3">
@@ -350,8 +380,8 @@ export default function HomePage() {
               <h2 className="text-3xl font-bold text-gray-900 mb-2">Featured Guides</h2>
               <p className="text-gray-600">Handpicked resources to get you started</p>
             </div>
-            <Link 
-              href="/articles" 
+            <Link
+              href="/articles"
               className="hidden md:flex items-center space-x-2 text-yellow-700 hover:text-yellow-800 font-semibold group"
             >
               <span>View all articles</span>
@@ -376,12 +406,12 @@ export default function HomePage() {
                       {guide.category}
                     </span>
                   </div>
-                  
+
                   <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-yellow-700 transition-colors">
                     {guide.title}
                   </h3>
                   <p className="text-gray-600 mb-4">{guide.description}</p>
-                  
+
                   <div className="flex items-center text-sm text-gray-500">
                     <Clock className="h-4 w-4 mr-1" />
                     {guide.readTime}
@@ -408,7 +438,7 @@ export default function HomePage() {
           {faqs.map((faq, index) => {
             const isExpanded = expandedFaq === index;
             return (
-              <div 
+              <div
                 key={index}
                 className="bg-white rounded-2xl border-2 border-gray-200 overflow-hidden hover:border-yellow-300 transition-all"
               >
@@ -417,13 +447,12 @@ export default function HomePage() {
                   className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-yellow-50 transition-colors"
                 >
                   <span className="font-semibold text-gray-900 pr-4">{faq.question}</span>
-                  <ChevronDown 
-                    className={`h-5 w-5 text-yellow-600 flex-shrink-0 transition-transform ${
-                      isExpanded ? 'rotate-180' : ''
-                    }`} 
+                  <ChevronDown
+                    className={`h-5 w-5 text-yellow-600 flex-shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''
+                      }`}
                   />
                 </button>
-                
+
                 {isExpanded && (
                   <div className="px-6 pb-5 text-gray-600 leading-relaxed animate-slideDown">
                     <div className="pt-2 border-t border-gray-100">
@@ -437,7 +466,7 @@ export default function HomePage() {
         </div>
 
         <div className="text-center mt-8">
-          <Link 
+          <Link
             href="/articles"
             className="inline-flex items-center space-x-2 text-yellow-700 hover:text-yellow-800 font-semibold"
           >
@@ -455,7 +484,7 @@ export default function HomePage() {
             <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-yellow-200 to-orange-200 rounded-full blur-3xl"></div>
             <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-amber-200 to-yellow-200 rounded-full blur-3xl"></div>
           </div>
-          
+
           <div className="relative px-8 md:px-16 py-12 md:py-16">
             <div className="grid lg:grid-cols-[1.2fr_1fr] gap-12 items-center">
               <div>
@@ -463,14 +492,14 @@ export default function HomePage() {
                   <HeartHandshake className="h-4 w-4 text-amber-600" />
                   <span className="text-sm font-semibold text-amber-800">We're Here for You</span>
                 </div>
-                
+
                 <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 leading-tight">
                   Can't Find What You Need?
                 </h2>
                 <p className="text-xl text-gray-700 mb-8 leading-relaxed">
                   Our dedicated support team is ready to help you 24/7. Get personalized assistance within minutes.
                 </p>
-                
+
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link
                     href="/contact"
@@ -480,14 +509,14 @@ export default function HomePage() {
                     <span>Contact Support</span>
                   </Link>
                   <a
-                    href="mailto:support@extrahand.com"
+                    href="mailto:support@extrahand.in"
                     className="inline-flex items-center justify-center space-x-2 px-8 py-4 bg-white/80 backdrop-blur border-2 border-yellow-400 text-gray-900 rounded-xl font-bold hover:bg-white transition-all"
                   >
                     <span>Email Us</span>
                   </a>
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="group bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-yellow-200 hover:border-yellow-400 hover:shadow-lg transition-all">
                   <div className="bg-gradient-to-br from-yellow-400 to-orange-500 w-12 h-12 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
@@ -496,7 +525,7 @@ export default function HomePage() {
                   <div className="text-3xl font-bold text-gray-900 mb-1">{'< 2min'}</div>
                   <div className="text-gray-600 text-sm">Avg Response Time</div>
                 </div>
-                
+
                 <div className="group bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-yellow-200 hover:border-yellow-400 hover:shadow-lg transition-all">
                   <div className="bg-gradient-to-br from-yellow-400 to-orange-500 w-12 h-12 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                     <CheckCircle2 className="h-6 w-6 text-gray-900" />
@@ -504,7 +533,7 @@ export default function HomePage() {
                   <div className="text-3xl font-bold text-gray-900 mb-1">98%</div>
                   <div className="text-gray-600 text-sm">Issue Resolution</div>
                 </div>
-                
+
                 <div className="group bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-yellow-200 hover:border-yellow-400 hover:shadow-lg transition-all">
                   <div className="bg-gradient-to-br from-yellow-400 to-orange-500 w-12 h-12 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                     <Users className="h-6 w-6 text-gray-900" />
@@ -512,7 +541,7 @@ export default function HomePage() {
                   <div className="text-3xl font-bold text-gray-900 mb-1">50k+</div>
                   <div className="text-gray-600 text-sm">Happy Customers</div>
                 </div>
-                
+
                 <div className="group bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-yellow-200 hover:border-yellow-400 hover:shadow-lg transition-all">
                   <div className="bg-gradient-to-br from-yellow-400 to-orange-500 w-12 h-12 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                     <Award className="h-6 w-6 text-gray-900" />
