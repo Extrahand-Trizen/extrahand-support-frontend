@@ -101,7 +101,7 @@ export default function Chatbot({ isOpen, onClose, sessionId = 'default', initia
     } catch (err: any) {
       console.error('Chat error:', err);
       setError(err.message || 'Failed to send message. Please try again.');
-      
+
       // Add error message to chat
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -123,7 +123,7 @@ export default function Chatbot({ isOpen, onClose, sessionId = 'default', initia
   if (!isOpen) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 w-96 h-[600px] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col z-50">
+    <div className="fixed bottom-4 right-4 w-[calc(100vw-32px)] sm:w-96 h-[500px] sm:h-[600px] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col z-50 transition-all duration-300">
       {/* Header */}
       <div className="bg-gradient-to-r from-yellow-400 to-amber-500 text-gray-900 p-4 rounded-t-2xl flex items-center justify-between">
         <div className="flex items-center space-x-3">
@@ -156,18 +156,17 @@ export default function Chatbot({ isOpen, onClose, sessionId = 'default', initia
                   <Bot className="h-4 w-4 text-gray-900" />
                 </div>
               )}
-              
+
               <div>
                 <div
-                  className={`rounded-2xl px-4 py-2 ${
-                    message.sender === 'user'
+                  className={`rounded-2xl px-4 py-2 ${message.sender === 'user'
                       ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-gray-900'
                       : 'bg-gray-100 text-gray-900'
-                  }`}
+                    }`}
                 >
                   <p className="text-sm whitespace-pre-wrap">{message.text}</p>
                 </div>
-                
+
                 {message.sources && message.sources.length > 0 && (
                   <div className="mt-1 text-xs text-gray-500">
                     <span className="font-semibold">Sources:</span>{' '}
@@ -184,7 +183,7 @@ export default function Chatbot({ isOpen, onClose, sessionId = 'default', initia
                     <span>Start Live Chat</span>
                   </button>
                 )}
-                
+
                 <div className="text-xs text-gray-400 mt-1">
                   {message.timestamp.toLocaleTimeString([], {
                     hour: '2-digit',

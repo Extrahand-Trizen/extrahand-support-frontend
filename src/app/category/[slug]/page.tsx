@@ -39,7 +39,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const info = categoryInfo[slug];
-  
+
   if (!info) {
     return {
       title: 'Category Not Found',
@@ -55,7 +55,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const info = categoryInfo[slug];
-  
+
   if (!info) {
     notFound();
   }
@@ -75,8 +75,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
         </Link>
 
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">{info.title}</h1>
-          <p className="text-xl text-gray-600">{info.description}</p>
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">{info.title}</h1>
+          <p className="text-lg sm:text-xl text-gray-600">{info.description}</p>
         </div>
 
         {articles.length > 0 ? (
@@ -88,11 +88,11 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
                 className="bg-white rounded-xl border-2 border-gray-200 p-6 hover:border-primary hover:shadow-lg transition-all group"
               >
                 <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-primary-dark transition-colors">
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 group-hover:text-primary-dark transition-colors">
                       {article.title}
                     </h2>
-                    <p className="text-gray-600 mb-4">{article.description}</p>
+                    <p className="text-sm sm:text-base text-gray-600 mb-4">{article.description}</p>
                     <div className="flex items-center space-x-4 text-sm ">
                       <div className="flex items-center space-x-1">
                         <Clock className="h-4 w-4" />

@@ -5,7 +5,7 @@ export const articles: Article[] = [
     id: '1',
     title: 'How to post your first task on ExtraHand',
     description: 'Step-by-step guide to creating your first task',
-    category: 'Getting Started',
+    category: 'Understanding ExtraHand',
     createdAt: '2024-01-15',
     updatedAt: '2024-01-15',
     views: 1250,
@@ -112,7 +112,7 @@ Yes, we use bank-level encryption and never store complete card details.
 **What if I'm not satisfied?**
 Our dispute resolution team will help ensure fair outcomes.
 
-For payment support, contact: payments@extrahand.com
+For payment support, contact: payments@extrahand.in
     `,
   },
   {
@@ -277,7 +277,7 @@ We're committed to fair, transparent pricing for everyone.
     id: '5',
     title: 'Account verification and security',
     description: 'How to verify your account and stay secure',
-    category: 'Account Management',
+    category: 'Login/Account Management',
     createdAt: '2024-01-05',
     updatedAt: '2024-01-15',
     views: 1120,
@@ -343,7 +343,7 @@ If you notice unusual activity:
 1. Change your password immediately
 2. Enable 2FA if not already active
 3. Review recent transactions
-4. Contact support at security@extrahand.com
+4. Contact support at security@extrahand.in
 
 ## Account Recovery
 
@@ -364,7 +364,7 @@ Control your privacy:
 ## Report Security Issues
 
 Found a security vulnerability?
-Email: security@extrahand.com
+Email: security@extrahand.in
 
 We take security seriously and investigate all reports promptly.
 
@@ -450,7 +450,7 @@ Contact support immediately if:
 **Immediate Danger**: Call 911 or local emergency services
 
 **ExtraHand Safety Team**: 
-- Email: safety@extrahand.com
+- Email: safety@extrahand.in
 - Phone: 1-800-EXTRA-HELP
 - In-app: Report button on any profile
 

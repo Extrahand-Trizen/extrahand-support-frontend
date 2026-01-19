@@ -117,61 +117,78 @@ export default function IssueSelector({ onSelect, onBack }: IssueSelectorProps) 
   const selectedCategoryData = ISSUE_CATEGORIES.find(c => c.id === selectedCategory);
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="w-full flex-1 min-h-0 flex flex-col bg-white overflow-hidden">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-200">
-        <div className="flex items-center space-x-3">
+      <div className="px-5 py-4 border-b border-gray-200">
+        <div className="flex items-center space-x-2.5">
           {onBack && (
             <button
               onClick={onBack}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              <ArrowLeft className="h-5 w-5 text-gray-600" />
+              <ArrowLeft className="h-4 w-4 text-gray-600" />
             </button>
           )}
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Help & Support</h2>
-            <p className="text-sm text-gray-600">Select your issue to get started</p>
+            <h2 className="text-xl font-bold text-gray-900 leading-tight">Help & Support</h2>
+            <p className="text-xs text-gray-500 font-medium mt-0.5">Select your issue to get started</p>
           </div>
         </div>
       </div>
 
       {/* Categories List */}
-      <div className="flex-1 overflow-y-auto p-4">
-        <div className="space-y-2">
+      <div className="flex-1 min-h-0 overflow-y-auto p-4 scroll-smooth custom-scrollbar pb-10">
+        <div className="space-y-2.5">
           {ISSUE_CATEGORIES.map((category) => (
-            <div key={category.id} className="border border-gray-200 rounded-lg overflow-hidden">
+            <div key={category.id} className={`group border rounded-xl transition-all duration-300 ${expandedCategory === category.id
+              ? 'border-indigo-200 bg-indigo-50/30'
+              : 'border-gray-100 bg-white hover:border-gray-200 hover:shadow-md hover:shadow-gray-200/20'
+              }`}>
               {/* Category Header */}
               <button
                 onClick={() => handleCategoryClick(category.id)}
-                className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center justify-between p-2 transition-colors"
               >
-                <div className="flex items-center space-x-3">
-                  <span className="text-2xl">{category.icon}</span>
-                  <span className="font-medium text-gray-900">{category.label}</span>
+                <div className="flex items-center space-x-2.5">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-base shadow-sm border transition-colors ${expandedCategory === category.id
+                    ? 'bg-white border-indigo-100'
+                    : 'bg-gray-50 border-gray-100 group-hover:bg-white'
+                    }`}>
+                    {category.icon}
+                  </div>
+                  <div className="text-left">
+                    <span className="block text-[13px] font-bold text-gray-900 leading-tight">{category.label}</span>
+                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
+                      {category.types.length} options
+                    </span>
+                  </div>
                 </div>
-                {expandedCategory === category.id ? (
-                  <ChevronDown className="h-5 w-5 text-gray-400" />
-                ) : (
-                  <ChevronRight className="h-5 w-5 text-gray-400" />
-                )}
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${expandedCategory === category.id ? 'bg-indigo-600 text-white rotate-180' : 'bg-gray-50 text-gray-400 group-hover:bg-white'
+                  }`}>
+                  <ChevronDown className="h-3 w-3" />
+                </div>
               </button>
 
               {/* Category Types */}
               {expandedCategory === category.id && (
-                <div className="border-t border-gray-200 bg-gray-50">
-                  {category.types.map((type) => (
-                    <button
-                      key={type.id}
-                      onClick={() => handleTypeSelect(category, type)}
-                      className="w-full text-left px-4 py-3 hover:bg-white transition-colors border-b border-gray-100 last:border-b-0 flex items-center justify-between group"
-                    >
-                      <span className="text-gray-700 group-hover:text-gray-900">
-                        {type.label}
-                      </span>
-                      <ChevronRight className="h-4 w-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </button>
-                  ))}
+                <div className="bg-white/40 backdrop-blur-sm px-2 pb-3 animate-slideDown">
+                  <div className="space-y-1.5 mt-1 border-l-2 border-indigo-100 ml-6 pl-2">
+                    {category.types.map((type) => (
+                      <button
+                        key={type.id}
+                        onClick={() => handleTypeSelect(category, type)}
+                        className="w-full text-left px-3 py-2 hover:bg-white hover:shadow-sm rounded-lg transition-all flex items-center justify-between group/item"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-indigo-300 group-hover/item:bg-indigo-500 transition-colors" />
+                          <span className="text-[12px] font-semibold text-gray-700 group-hover/item:text-indigo-600 transition-colors">
+                            {type.label}
+                          </span>
+                        </div>
+                        <ChevronRight className="h-3.5 w-3.5 text-indigo-400 opacity-0 group-hover/item:opacity-100 transition-all translate-x-2 group-hover/item:translate-x-0" />
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

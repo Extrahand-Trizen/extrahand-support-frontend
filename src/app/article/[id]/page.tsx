@@ -10,7 +10,7 @@ export const revalidate = 0;
 
 export async function generateStaticParams() {
   const articles = await fetchArticlesFromAPI();
-  return articles.map((article) => ({
+  return articles.map((article: any) => ({
     id: article.id,
   }));
 }
@@ -18,7 +18,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const article = await fetchArticleByIdFromAPI(id);
-  
+
   if (!article) {
     return {
       title: 'Article Not Found',
@@ -53,7 +53,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
               <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
               <span>Back to articles</span>
             </Link>
-            
+
             <div className="flex items-center space-x-3">
               <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="Share">
                 <Share2 className="h-5 w-5 text-gray-600" />
@@ -75,14 +75,14 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
               {/* Article Image - Full Width at Top */}
               {article.imageUrl && (
                 <div className="w-full">
-                  <ArticleImage 
-                    src={article.imageUrl} 
+                  <ArticleImage
+                    src={article.imageUrl}
                     alt={article.title}
                     className="w-full h-auto max-h-[500px] object-cover"
                   />
                 </div>
               )}
-              
+
               <div className="p-6">
                 <div className="flex items-center space-x-2 mb-3">
                   <span className="text-xs font-semibold text-yellow-700 bg-yellow-100 px-3 py-1 rounded-full">
@@ -93,15 +93,15 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
                     <span>Trending</span>
                   </div>
                 </div>
-                
+
                 <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3 leading-tight">
                   {article.title}
                 </h1>
-                
+
                 <p className="text-sm text-gray-600 mb-4 leading-relaxed">
                   {article.description}
                 </p>
-                
+
                 <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                   <div className="flex items-center space-x-4 text-xs text-gray-500">
                     <div className="flex items-center space-x-1.5">
@@ -119,7 +119,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
                       <span>{article.views.toLocaleString()} views</span>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center space-x-1.5">
                     <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
                       <span className="text-xs font-bold text-green-700">✓</span>
@@ -135,57 +135,57 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
               <div className="prose max-w-none">
                 <ReactMarkdown
                   components={{
-                    h1: ({ children }) => (
+                    h1: ({ children }: any) => (
                       <h1 className="text-xl font-bold text-gray-900 mb-4 mt-6 pb-2 border-b border-yellow-200">
                         {children}
                       </h1>
                     ),
-                    h2: ({ children }) => (
+                    h2: ({ children }: any) => (
                       <h2 className="text-lg font-bold text-gray-900 mb-3 mt-6 flex items-center space-x-2">
                         <span className="w-1 h-5 bg-yellow-500 rounded-full"></span>
                         <span>{children}</span>
                       </h2>
                     ),
-                    h3: ({ children }) => (
+                    h3: ({ children }: any) => (
                       <h3 className="text-base font-bold text-gray-900 mb-2 mt-4">
                         {children}
                       </h3>
                     ),
-                    p: ({ children }) => (
+                    p: ({ children }: any) => (
                       <p className="text-gray-700 mb-4 leading-relaxed text-sm">{children}</p>
                     ),
-                    ul: ({ children }) => (
+                    ul: ({ children }: any) => (
                       <ul className="space-y-2 mb-4 ml-4">
                         {children}
                       </ul>
                     ),
-                    li: ({ children }) => (
+                    li: ({ children }: any) => (
                       <li className="text-gray-700 flex items-start space-x-2 text-sm">
                         <span className="text-yellow-500 mt-1">●</span>
                         <span className="flex-1">{children}</span>
                       </li>
                     ),
-                    ol: ({ children }) => (
+                    ol: ({ children }: any) => (
                       <ol className="list-decimal list-inside mb-4 space-y-2 text-gray-700 text-sm">
                         {children}
                       </ol>
                     ),
-                    strong: ({ children }) => (
+                    strong: ({ children }: any) => (
                       <strong className="font-semibold text-gray-900">
                         {children}
                       </strong>
                     ),
-                    code: ({ children }) => (
+                    code: ({ children }: any) => (
                       <code className="bg-gray-100 text-pink-600 px-1.5 py-0.5 rounded font-mono text-xs">
                         {children}
                       </code>
                     ),
-                    pre: ({ children }) => (
+                    pre: ({ children }: any) => (
                       <pre className="bg-gray-900 text-gray-100 p-3 rounded-lg overflow-x-auto mb-4 text-xs">
                         {children}
                       </pre>
                     ),
-                    blockquote: ({ children }) => (
+                    blockquote: ({ children }: any) => (
                       <blockquote className="border-l-3 border-yellow-500 pl-3 py-2 mb-4 bg-yellow-50 rounded-r-lg italic text-gray-700 text-sm">
                         {children}
                       </blockquote>

@@ -185,7 +185,7 @@ This project is part of the ExtraHand platform.
 ## 📧 Contact
 
 For questions about this support portal:
-- Email: support@extrahand.com
+- Email: support@extrahand.in
 - Phone: +91 123-456-7890
 
 ---

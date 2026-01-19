@@ -59,22 +59,32 @@ export default function Footer() {
             <h4 className="font-semibold text-gray-900 mb-4">Help Topics</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/category/getting-started" className="text-gray-600 hover:text-primary-dark transition-colors">
-                  Getting Started
+                <Link href="/support/understanding-extrahand" className="text-gray-600 hover:text-primary-dark transition-colors">
+                  Understanding ExtraHand
                 </Link>
               </li>
               <li>
-                <Link href="/category/posting-tasks" className="text-gray-600 hover:text-primary-dark transition-colors">
-                  Posting Tasks
+                <Link href="/support/account-management" className="text-gray-600 hover:text-primary-dark transition-colors">
+                  Login/Account Management
                 </Link>
               </li>
               <li>
-                <Link href="/category/payments" className="text-gray-600 hover:text-primary-dark transition-colors">
+                <Link href="/support/payments-refunds" className="text-gray-600 hover:text-primary-dark transition-colors">
                   Payments & Refunds
                 </Link>
               </li>
               <li>
-                <Link href="/category/safety" className="text-gray-600 hover:text-primary-dark transition-colors">
+                <Link href="/support/managing-tasks" className="text-gray-600 hover:text-primary-dark transition-colors">
+                  Managing Tasks
+                </Link>
+              </li>
+              <li>
+                <Link href="/support/tips-customers" className="text-gray-600 hover:text-primary-dark transition-colors">
+                  Tips for Customers
+                </Link>
+              </li>
+              <li>
+                <Link href="/support/trust-safety" className="text-gray-600 hover:text-primary-dark transition-colors">
                   Trust & Safety
                 </Link>
               </li>
@@ -87,8 +97,8 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               <li className="flex items-center space-x-2 text-gray-600">
                 <Mail className="h-4 w-4" />
-                <a href="mailto:support@extrahand.com" className="hover:text-primary-dark transition-colors">
-                  support@extrahand.com
+                <a href="mailto:support@extrahand.in" className="hover:text-primary-dark transition-colors">
+                  support@extrahand.in
                 </a>
               </li>
             </ul>

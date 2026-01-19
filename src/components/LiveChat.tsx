@@ -63,14 +63,14 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
 
     const userStr = localStorage.getItem('user');
     const accessToken = localStorage.getItem('accessToken');
-    
+
     if (userStr && accessToken) {
       try {
         const user = JSON.parse(userStr);
         setCustomerName(user.name || user.email?.split('@')[0] || 'User');
         setCustomerEmail(user.email || 'guest@example.com');
         setIsLoggedIn(true);
-        
+
         // Check if user has an active or previous session
         checkExistingSession(user.email);
         // Load closed tickets history
@@ -91,15 +91,15 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
       const response = await fetch(`http://localhost:8001/api/customer/history/${email}`);
       const data = await response.json();
       console.log(`[INFO] Response:`, data);
-      
+
       if (data.error) {
         console.error(`[ERROR] API error: ${data.error}`);
       }
-      
+
       if (data.message) {
         console.log(`[INFO] API message: ${data.message}`);
       }
-      
+
       console.log(`[INFO] Loaded ${data.sessions?.length || 0} closed tickets`);
       setClosedTickets(data.sessions || []);
     } catch (error) {
@@ -114,13 +114,13 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
       const response = await fetch(`http://localhost:8001/api/customer/can-chat/${email}`);
       const data = await response.json();
       console.log('📋 Can chat response:', data);
-      
+
       if (!data.can_chat && data.active_session_id) {
         // User has an active session, reconnect to it
         console.log('♻️ Reconnecting to existing session:', data.active_session_id);
         setSessionId(data.active_session_id);
         setRequestStatus('waiting');
-        
+
         // Connect to existing session
         const wsUrl = `ws://localhost:8001/ws/customer/${data.active_session_id}`;
         console.log('🔌 Reconnecting WebSocket URL:', wsUrl);
@@ -140,7 +140,7 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
       const response = await fetch(`http://localhost:8001/api/ticket/history/${ticketId}`);
       const data = await response.json();
       console.log(`[INFO] Received ticket data:`, data);
-      
+
       if (data.messages) {
         const formattedMessages: Message[] = data.messages.map((msg: any) => {
           const senderField = msg.sender_type || msg.sender;
@@ -167,7 +167,7 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
     }
 
     setRequestStatus('requesting');
-    
+
     // Create new session with issue information
     fetch('http://localhost:8001/api/sessions', {
       method: 'POST',
@@ -188,14 +188,14 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
         const newSessionId = data.session_id;
         setSessionId(newSessionId);
         setRequestStatus('waiting');
-        
+
         setMessages([{
           id: Date.now().toString(),
           text: `Issue: ${issueTypeLabel}\nRequest sent to support team. Waiting for an agent to join...`,
           sender: 'system',
           timestamp: new Date()
         }]);
-        
+
         // Connect to WebSocket to listen for agent
         const ws = new WebSocket(`ws://localhost:8001/ws/customer/${newSessionId}`);
         setupWebSocket(ws);
@@ -220,10 +220,10 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
     setIssueCategoryLabel(categoryLabel);
     setIssueTypeLabel(typeLabel);
     setShowIssueSelector(false);
-    
+
     // Request agent with the selected issue
     setRequestStatus('requesting');
-    
+
     fetch('http://localhost:8001/api/sessions', {
       method: 'POST',
       headers: {
@@ -251,14 +251,14 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
         console.log('🔗 Connecting to WebSocket with session ID:', newSessionId);
         setSessionId(newSessionId);
         setRequestStatus('waiting');
-        
+
         setMessages([{
           id: Date.now().toString(),
           text: `Issue: ${typeLabel}\nRequest sent to support team. Waiting for an agent to join...`,
           sender: 'system',
           timestamp: new Date()
         }]);
-        
+
         // Connect to WebSocket to listen for agent
         const wsUrl = `ws://localhost:8001/ws/customer/${newSessionId}`;
         console.log('🔌 WebSocket URL:', wsUrl);
@@ -296,7 +296,7 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       console.log('📨 Received WebSocket message:', data);
-      
+
       if (data.type === 'history') {
         // Handle chat history - load previous messages
         if (data.messages && data.messages.length > 0) {
@@ -317,7 +317,7 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
           // No history, start with empty messages
           setMessages([]);
         }
-        
+
         // Check if session is already active (agent already joined)
         const session = data.session;
         if (session && session.status === 'active') {
@@ -360,7 +360,7 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
         }]);
       } else if (data.type === 'session_closed') {
         console.log('[INFO] Session closed by agent');
-        
+
         // Add closing message
         setMessages(prev => [...prev, {
           id: Date.now().toString(),
@@ -368,22 +368,22 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
           sender: 'system',
           timestamp: new Date()
         }]);
-        
+
         // Update states
         setIsConnected(false);
         setIsSessionClosed(true);
-        
+
         // Store session ID for feedback before clearing it
         const currentSessionId = sessionId;
         if (currentSessionId) {
           setClosedSessionId(currentSessionId);
           console.log('[INFO] Stored session ID for feedback:', currentSessionId);
         }
-        
+
         // Show feedback form immediately
         setShowFeedbackForm(true);
         setRequestStatus('idle');
-        
+
         // Delay WebSocket cleanup to ensure message is delivered
         setTimeout(() => {
           console.log('[INFO] Cleaning up WebSocket connection');
@@ -445,7 +445,7 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
     if (!inputMessage.trim() || !socket) return;
 
     const messageText = inputMessage.trim();
-    
+
     // Send to WebSocket with correct action format
     socket.send(JSON.stringify({
       action: 'send_message',
@@ -483,7 +483,7 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
       if (response.ok) {
         setFeedbackSubmitted(true);
         setShowFeedbackForm(false);
-        
+
         // Add thank you message
         setMessages(prev => [...prev, {
           id: Date.now().toString(),
@@ -508,8 +508,8 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
   // Show login prompt if not logged in
   if (!isLoggedIn) {
     return (
-      <div className="fixed bottom-4 right-4 w-96 bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col z-50">
-        <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 rounded-t-2xl flex items-center justify-between">
+      <div className="fixed bottom-4 right-4 w-[calc(100vw-32px)] sm:w-96 bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col z-50 overflow-hidden">
+        <div className="w-full flex-shrink-0 bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="bg-white/20 rounded-full p-2">
               <Headphones className="h-5 w-5 text-white" />
@@ -550,34 +550,46 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 w-96 h-[600px] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col z-50">
+    <div className="fixed bottom-4 right-4 w-[calc(100vw-32px)] sm:w-96 h-[500px] sm:h-[600px] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col z-50 transition-all duration-300 overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 rounded-t-2xl flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <div className="bg-white/20 rounded-full p-2">
-            <Headphones className="h-5 w-5 text-white" />
+      <div className="w-full flex-shrink-0 bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white p-4 flex items-center justify-between shadow-lg relative overflow-hidden">
+        {/* Subtle decorative elements */}
+        <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-12 -mt-12 blur-2xl"></div>
+        <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/10 rounded-full -ml-8 -mb-8 blur-xl"></div>
+
+        <div className="flex items-center space-x-3 relative z-10 min-w-0 flex-shrink-0">
+          <div className="bg-white/20 backdrop-blur-md rounded-xl p-2.5 flex-shrink-0 shadow-inner">
+            <Headphones className="h-6 w-6 text-white" />
           </div>
-          <div>
-            <h3 className="font-bold">Live Support</h3>
-            <p className="text-xs opacity-90">
-              {showHistory ? 'Chat History' :
-               requestStatus === 'connected' ? 'Connected' : 
-               requestStatus === 'waiting' ? 'Waiting for agent...' : 
-               requestStatus === 'requesting' ? 'Requesting...' : 'Ready'}
-            </p>
+          <div className="min-w-0 flex flex-col justify-center">
+            <h3 className="text-base font-bold tracking-tight whitespace-nowrap overflow-hidden text-ellipsis leading-tight">Live Support</h3>
+            <div className="flex items-center space-x-1.5 mt-1">
+              <div className="relative flex items-center justify-center">
+                <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-400' : 'bg-white/40'}`}></span>
+                {isConnected && <span className="absolute w-3 h-3 bg-green-400 rounded-full animate-ping opacity-40"></span>}
+              </div>
+              <p className="text-xs font-semibold text-white/95 uppercase tracking-wide truncate">
+                {showHistory ? 'Chat History' :
+                  requestStatus === 'connected' ? 'Connected' :
+                    requestStatus === 'waiting' ? 'In Queue' :
+                      requestStatus === 'requesting' ? 'Connecting...' : 'Online'}
+              </p>
+            </div>
           </div>
         </div>
-        <div className="flex items-center space-x-2">
+
+        <div className="flex items-center space-x-2 relative z-10">
           <button
             onClick={() => setShowHistory(!showHistory)}
-            className="hover:bg-white/20 rounded-full p-1 transition-colors"
-            title={showHistory ? "Back to Chat" : "View History"}
+            className="w-9 h-9 flex items-center justify-center hover:bg-white/20 rounded-xl transition-all duration-200"
+            title={showHistory ? "Back to Chat" : "Chat History"}
           >
             {showHistory ? <MessageSquare className="h-5 w-5" /> : <History className="h-5 w-5" />}
           </button>
           <button
             onClick={onClose}
-            className="hover:bg-white/20 rounded-full p-1 transition-colors"
+            className="w-9 h-9 flex items-center justify-center hover:bg-red-500/80 hover:scale-105 active:scale-95 rounded-xl transition-all duration-200"
+            title="Close"
           >
             <X className="h-5 w-5" />
           </button>
@@ -588,81 +600,93 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
       {showHistory ? (
         selectedHistoryTicket ? (
           // Show selected ticket messages
-          <div className="flex-1 flex flex-col bg-gray-50">
+          <div className="flex-1 flex flex-col bg-white">
             {/* Ticket Header */}
-            <div className="p-4 bg-white border-b border-gray-200">
+            <div className="p-5 bg-gradient-to-b from-gray-50 to-white border-b border-gray-100 shadow-sm">
               <button
                 onClick={() => {
                   setSelectedHistoryTicket(null);
                   setHistoryMessages([]);
                 }}
-                className="flex items-center text-purple-600 hover:text-purple-700 mb-3"
+                className="flex items-center text-indigo-600 hover:text-indigo-800 mb-4 group transition-colors"
               >
-                <ArrowLeft className="h-4 w-4 mr-1" />
-                <span className="text-sm font-medium">Back to History</span>
+                <ArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+                <span className="text-xs font-bold uppercase tracking-wider">Back to History</span>
               </button>
+
               <div className="flex items-start justify-between">
                 <div>
-                  <span className="text-xs font-mono text-purple-600 bg-purple-50 px-2 py-1 rounded">
-                    {selectedHistoryTicket.ticket_id}
-                  </span>
-                  <p className="text-sm font-medium text-gray-900 mt-2">
-                    Agent: {selectedHistoryTicket.agent_name || 'Unknown'}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {formatToIST(selectedHistoryTicket.closed_at)}
-                  </p>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-1 rounded">
+                      #{selectedHistoryTicket.ticket_id}
+                    </span>
+                    <span className="text-xs text-gray-400 font-medium">
+                      {formatDateToIST(selectedHistoryTicket.closed_at)}
+                    </span>
+                  </div>
+                  <h4 className="text-base font-bold text-gray-900 mt-2">
+                    Interaction with {selectedHistoryTicket.agent_name || 'Support Agent'}
+                  </h4>
                 </div>
                 {selectedHistoryTicket.rating && (
-                  <div className="text-yellow-500 flex items-center">
-                    {'⭐'.repeat(selectedHistoryTicket.rating)}
+                  <div className="flex flex-col items-end">
+                    <div className="flex space-x-0.5">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={`h-3 w-3 ${star <= selectedHistoryTicket.rating
+                            ? 'fill-yellow-400 text-yellow-400'
+                            : 'text-gray-200'
+                            }`}
+                        />
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
             </div>
-            
+
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto p-5 space-y-6 bg-gray-50/50">
               {historyMessages.map((message) => (
                 <div
                   key={message.id}
-                  className={`flex ${
-                    message.sender === 'user' ? 'justify-end' : 
+                  className={`flex ${message.sender === 'user' ? 'justify-end' :
                     message.sender === 'system' ? 'justify-center' : 'justify-start'
-                  }`}
+                    } group`}
                 >
                   {message.sender === 'system' ? (
-                    <span className="text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded-full">
-                      {message.text}
-                    </span>
+                    <div className="flex flex-col items-center max-w-[90%]">
+                      <span className="text-[10px] font-bold text-gray-400 bg-white border border-gray-100 px-3 py-1 rounded-full shadow-sm uppercase tracking-tighter">
+                        {message.text}
+                      </span>
+                    </div>
                   ) : (
-                    <div className={`flex items-start space-x-2 max-w-[80%]`}>
-                      {message.sender === 'agent' && (
-                        <div className="bg-purple-100 rounded-full p-2 flex-shrink-0">
-                          <Headphones className="h-4 w-4 text-purple-600" />
-                        </div>
-                      )}
-                      
-                      <div>
+                    <div className={`flex items-start ${message.sender === 'user' ? 'flex-row-reverse space-x-reverse' : 'space-x-2'} max-w-[85%]`}>
+                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm transition-transform group-hover:scale-110 ${message.sender === 'user'
+                        ? 'bg-gradient-to-br from-indigo-500 to-blue-600'
+                        : 'bg-white border border-gray-100'
+                        }`}>
+                        {message.sender === 'user' ? (
+                          <User className="h-4 w-4 text-white" />
+                        ) : (
+                          <Headphones className="h-4 w-4 text-indigo-600" />
+                        )}
+                      </div>
+
+                      <div className={`flex flex-col ${message.sender === 'user' ? 'items-end' : 'items-start'}`}>
                         <div
-                          className={`rounded-2xl px-4 py-2 ${
-                            message.sender === 'user'
-                              ? 'bg-purple-600 text-white'
-                              : 'bg-white text-gray-900 border border-gray-200 shadow-sm'
-                          }`}
+                          className={`rounded-2xl px-4 py-2.5 shadow-sm transition-all duration-300 ${message.sender === 'user'
+                            ? 'bg-gradient-to-br from-indigo-600 to-blue-700 text-white rounded-tr-none'
+                            : 'bg-white text-gray-800 border border-gray-100 rounded-tl-none'
+                            }`}
                         >
-                          <p className="text-sm whitespace-pre-wrap">{message.text}</p>
+                          <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>
                         </div>
-                        <span className="text-[10px] text-gray-400 mt-1.5 px-1">
+                        <span className="text-[9px] font-bold text-gray-400 mt-1.5 px-1 uppercase tracking-wider">
                           {formatTimeToIST(message.timestamp)}
                         </span>
                       </div>
-                      
-                      {message.sender === 'user' && (
-                        <div className="bg-purple-100 rounded-full p-2 flex-shrink-0 order-first ml-auto">
-                          <User className="h-4 w-4 text-purple-600" />
-                        </div>
-                      )}
                     </div>
                   )}
                 </div>
@@ -671,41 +695,59 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
           </div>
         ) : (
           // Show ticket list
-          <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3">Previous Conversations</h3>
+          <div className="flex-1 overflow-y-auto p-5 bg-gray-50/50">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest">History</h3>
+              <span className="text-[10px] font-bold text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full">
+                {closedTickets.length} Session{closedTickets.length !== 1 ? 's' : ''}
+              </span>
+            </div>
+
             {closedTickets.length === 0 ? (
-              <div className="text-center py-12">
-                <History className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-sm font-medium text-gray-600 mb-1">No Closed Tickets</p>
-                <p className="text-xs text-gray-500">
-                  Closed conversations will appear here after an agent closes your support ticket.
-                </p>
-                <p className="text-xs text-gray-400 mt-2">
-                  Start a conversation by clicking "Request Support Agent" below.
+              <div className="text-center py-16 px-4">
+                <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm border border-gray-50">
+                  <History className="h-10 w-10 text-gray-300" />
+                </div>
+                <h3 className="text-base font-bold text-gray-900 mb-2">No past conversations</h3>
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  When you complete a support session, it will appear here for your reference.
                 </p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {closedTickets.map((ticket) => (
-                  <div 
-                    key={ticket.id} 
+                  <div
+                    key={ticket.id}
                     onClick={() => loadTicketMessages(ticket.ticket_id)}
-                    className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all cursor-pointer hover:border-purple-300"
+                    className="group bg-white p-5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-300 cursor-pointer hover:border-indigo-200 relative overflow-hidden"
                   >
-                    <div className="flex items-start justify-between mb-2">
-                      <span className="text-xs font-mono text-purple-600 bg-purple-50 px-2 py-1 rounded">
-                        {ticket.ticket_id}
+                    {/* Hover indicator */}
+                    <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+
+                    <div className="flex items-start justify-between mb-4">
+                      <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2.5 py-1 rounded uppercase tracking-tighter">
+                        #{ticket.ticket_id}
                       </span>
-                      <span className="text-xs text-gray-400">
+                      <span className="text-[10px] font-bold text-gray-400">
                         {formatDateToIST(ticket.closed_at)}
                       </span>
                     </div>
-                    <p className="text-sm font-medium text-gray-900 mb-1">
-                      Agent: {ticket.agent_name || 'Unknown'}
-                    </p>
+
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center border border-gray-100 group-hover:bg-indigo-50 group-hover:border-indigo-100 transition-colors">
+                        <Headphones className="h-5 w-5 text-gray-400 group-hover:text-indigo-500 transition-colors" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-gray-900">
+                          {ticket.agent_name || 'Support Agent'}
+                        </p>
+                        <p className="text-[10px] text-gray-500">Service interaction completed</p>
+                      </div>
+                    </div>
+
                     {ticket.resolution_note && (
-                      <p className="text-xs text-gray-600 line-clamp-2 mb-2">
-                        {ticket.resolution_note}
+                      <p className="text-xs text-gray-600 bg-gray-50 p-3 rounded-xl mb-4 line-clamp-2 border border-gray-100 italic">
+                        "{ticket.resolution_note}"
                       </p>
                     )}
                     {ticket.rating && (
@@ -732,13 +774,8 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
                           </p>
                         )}
                       </div>
-                    )}
-                    <div className="mt-2 flex items-center justify-between">
-                      <span className="text-xs text-gray-400">
-                        {formatToIST(ticket.closed_at)}
-                      </span>
-                      <span className="text-xs text-purple-600 font-medium">
-                        View Chat →
+                      <span className="text-[10px] font-bold text-indigo-600 group-hover:translate-x-1 transition-transform inline-flex items-center">
+                        Full Transcript <ChevronRight className="h-3 w-3 ml-1" />
                       </span>
                     </div>
                   </div>
@@ -748,220 +785,278 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
           </div>
         )
       ) : showIssueSelector ? (
-        <IssueSelector 
-          onSelect={handleIssueSelect}
-          onBack={() => setShowIssueSelector(false)}
-        />
+        <div className="flex-1 min-h-0 flex flex-col">
+          <IssueSelector
+            onSelect={handleIssueSelect}
+            onBack={() => setShowIssueSelector(false)}
+          />
+        </div>
       ) : requestStatus === 'idle' ? (
-        <div className="flex-1 flex flex-col items-center justify-center p-6 bg-gray-50">
-          <div className="bg-purple-100 p-6 rounded-full mb-6">
-            <Headphones className="h-12 w-12 text-purple-600" />
+        <div className="flex-1 flex flex-col items-center justify-center p-8 bg-gray-50/30 animate-fadeIn">
+          <div className="relative mb-10">
+            <div className="absolute inset-0 bg-indigo-500 blur-2xl opacity-20 animate-pulse"></div>
+            <div className="relative bg-white p-8 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 border border-gray-50">
+              <Headphones className="h-16 w-16 text-indigo-600 animate-bounce-short" />
+            </div>
+            <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white shadow-sm flex items-center justify-center">
+              <div className="w-2.5 h-2.5 bg-white rounded-full animate-ping"></div>
+            </div>
           </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-3">Need Help?</h3>
-          <p className="text-sm text-gray-600 text-center mb-8 max-w-sm">
-            Connect with our support team to get instant help with your questions or issues.
-          </p>
+
+          <div className="text-center max-w-xs mb-10">
+            <h3 className="text-2xl font-black text-gray-900 mb-3 tracking-tight">Need Support?</h3>
+            <p className="text-sm text-gray-500 font-medium leading-relaxed">
+              Experience the fastest support. Our average response time is currently <span className="text-indigo-600 font-bold">under 2 mins</span>.
+            </p>
+          </div>
+
           <button
             onClick={initiateChat}
             disabled={!isLoggedIn}
-            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-4 rounded-xl font-semibold hover:from-purple-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="group relative w-full overflow-hidden"
           >
-            {isLoggedIn ? 'Request Support Agent' : 'Login to Get Support'}
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-blue-600 rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-1000"></div>
+            <div className="relative bg-gradient-to-r from-indigo-600 to-blue-700 text-white py-5 rounded-2xl font-black text-base flex items-center justify-center space-x-3 transition-transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:grayscale">
+              <span>{isLoggedIn ? 'Launch Live Session' : 'Login to Continue'}</span>
+              <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            </div>
           </button>
-          <p className="text-xs text-gray-400 mt-4 text-center">
-            Average response time: &lt; 2 minutes
-          </p>
+
+          <div className="flex items-center space-x-4 mt-8 opacity-40">
+            <div className="flex -space-x-2">
+              {[1, 2, 3].map(i => (
+                <div key={i} className={`w-6 h-6 rounded-full border-2 border-white bg-gray-${100 + i * 100}`}></div>
+              ))}
+            </div>
+            {/* <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+              
+            </span> */}
+          </div>
+        </div>
+      ) : (requestStatus === 'requesting' || requestStatus === 'waiting') && messages.length === 0 ? (
+        <div className="flex-1 flex flex-col items-center justify-center p-8 bg-white space-y-8 animate-fadeIn">
+          <div className="relative">
+            <div className="w-32 h-32 rounded-full border-4 border-gray-50 border-t-indigo-500 animate-spin"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center">
+                <ShieldCheck className="h-10 w-10 text-indigo-600 animate-pulse" />
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center">
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Connecting to Secure Server</h3>
+            <p className="text-sm text-gray-500 font-medium max-w-[240px] mx-auto">
+              Please stay on this screen. We're matching you with the best available agent.
+            </p>
+          </div>
+
+          <div className="flex space-x-1.5">
+            <div className="w-2.5 h-2.5 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+            <div className="w-2.5 h-2.5 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+            <div className="w-2.5 h-2.5 bg-indigo-500 rounded-full animate-bounce"></div>
+          </div>
         </div>
       ) : (
         <>
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`flex ${
-              message.sender === 'user' ? 'justify-end' : 
-              message.sender === 'system' ? 'justify-center' : 'justify-start'
-            }`}
-          >
-            {message.sender === 'system' ? (
-              <span className="text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded-full">
-                {message.text}
-              </span>
-            ) : (
-              <div className={`flex items-start space-x-2 max-w-[80%]`}>
-                {message.sender === 'agent' && (
-                  <div className="bg-purple-100 rounded-full p-2 flex-shrink-0">
-                    <Headphones className="h-4 w-4 text-purple-600" />
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto p-5 space-y-6 bg-gray-50/50 scroll-smooth">
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex ${message.sender === 'user' ? 'justify-end' :
+                  message.sender === 'system' ? 'justify-center' : 'justify-start'
+                  } animate-slideUp`}
+              >
+                {message.sender === 'system' ? (
+                  <div className="flex flex-col items-center max-w-[90%]">
+                    <span className="text-[10px] font-bold text-gray-500 bg-white/80 backdrop-blur-sm border border-gray-100 px-4 py-1.5 rounded-full shadow-sm uppercase tracking-wider">
+                      {message.text}
+                    </span>
                   </div>
-                )}
-                
-                <div>
-                  <div
-                    className={`rounded-2xl px-4 py-2 ${
-                      message.sender === 'user'
-                        ? 'bg-purple-600 text-white'
-                        : 'bg-white text-gray-900 border border-gray-200 shadow-sm'
-                    }`}
-                  >
-                    <p className="text-sm whitespace-pre-wrap">{message.text}</p>
-                  </div>
-                  <div className="text-xs text-gray-400 mt-1">
-                    {formatTimeToIST(message.timestamp)}
-                  </div>
-                </div>
+                ) : (
+                  <div className={`flex items-start ${message.sender === 'user' ? 'flex-row-reverse space-x-reverse' : 'space-x-2'} max-w-[85%]`}>
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm transition-transform hover:scale-110 ${message.sender === 'user'
+                      ? 'bg-gradient-to-br from-indigo-500 to-blue-600'
+                      : 'bg-white border border-gray-100'
+                      }`}>
+                      {message.sender === 'user' ? (
+                        <User className="h-4 w-4 text-white" />
+                      ) : (
+                        <Headphones className="h-4 w-4 text-indigo-600" />
+                      )}
+                    </div>
 
-                {message.sender === 'user' && (
-                  <div className="bg-gray-200 rounded-full p-2 flex-shrink-0">
-                    <User className="h-4 w-4 text-gray-600" />
+                    <div className={`flex flex-col ${message.sender === 'user' ? 'items-end' : 'items-start'}`}>
+                      <div
+                        className={`rounded-2xl px-4 py-3 shadow-md transition-all duration-300 ${message.sender === 'user'
+                          ? 'bg-gradient-to-br from-indigo-600 to-blue-700 text-white rounded-tr-none'
+                          : 'bg-white text-gray-800 border border-gray-100 rounded-tl-none'
+                          }`}
+                      >
+                        <p className="text-sm leading-relaxed whitespace-pre-wrap font-medium">{message.text}</p>
+                      </div>
+                      <span className="text-[9px] font-bold text-gray-400 mt-2 px-1 uppercase tracking-widest opacity-70">
+                        {formatTimeToIST(message.timestamp)}
+                      </span>
+                    </div>
                   </div>
                 )}
               </div>
-            )}
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Feedback Form */}
-      {showFeedbackForm && !feedbackSubmitted && (
-        <div className="px-4 py-5 bg-gradient-to-br from-purple-50 to-indigo-50 border-t-2 border-purple-300">
-          <div className="text-center mb-4">
-            <div className="inline-flex items-center justify-center w-14 h-14 bg-purple-100 rounded-full mb-3">
-              <Star className="h-7 w-7 text-purple-600" />
-            </div>
-            <h3 className="text-base font-bold text-gray-900 mb-1">How was your experience?</h3>
-            <p className="text-xs text-gray-600">Your feedback helps us improve our service</p>
-          </div>
-          
-          {/* Star Rating */}
-          <div className="flex justify-center space-x-2 mb-4">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <button
-                key={star}
-                type="button"
-                onClick={() => setFeedbackRating(star)}
-                className="transition-all transform hover:scale-125 focus:outline-none"
-              >
-                <Star
-                  className={`h-9 w-9 ${
-                    star <= feedbackRating
-                      ? 'fill-yellow-400 text-yellow-400'
-                      : 'text-gray-300 hover:text-gray-400'
-                  }`}
-                />
-              </button>
             ))}
+            <div ref={messagesEndRef} />
           </div>
-          
-          {/* Rating Label */}
-          {feedbackRating > 0 && (
-            <p className="text-center text-sm font-medium text-purple-600 mb-3">
-              {feedbackRating === 5 ? '⭐ Excellent!' : 
-               feedbackRating === 4 ? '😊 Good!' :
-               feedbackRating === 3 ? '👍 Okay' :
-               feedbackRating === 2 ? '😐 Could be better' : '😞 Needs improvement'}
-            </p>
+
+          {/* Feedback Form */}
+          {showFeedbackForm && !feedbackSubmitted && (
+            <div className="px-4 py-5 bg-gradient-to-br from-purple-50 to-indigo-50 border-t-2 border-purple-300">
+              <div className="text-center mb-4">
+                <div className="inline-flex items-center justify-center w-14 h-14 bg-purple-100 rounded-full mb-3">
+                  <Star className="h-7 w-7 text-purple-600" />
+                </div>
+                <h3 className="text-base font-bold text-gray-900 mb-1">How was your experience?</h3>
+                <p className="text-xs text-gray-600">Your feedback helps us improve our service</p>
+              </div>
+
+              {/* Star Rating */}
+              <div className="flex justify-center space-x-2 mb-4">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setFeedbackRating(star)}
+                    className="transition-all transform hover:scale-125 focus:outline-none"
+                  >
+                    <Star
+                      className={`h-9 w-9 ${star <= feedbackRating
+                        ? 'fill-yellow-400 text-yellow-400'
+                        : 'text-gray-300 hover:text-gray-400'
+                        }`}
+                    />
+                  </button>
+                ))}
+              </div>
+
+              {/* Rating Label */}
+              {feedbackRating > 0 && (
+                <p className="text-center text-sm font-medium text-purple-600 mb-3">
+                  {feedbackRating === 5 ? '⭐ Excellent!' :
+                    feedbackRating === 4 ? '😊 Good!' :
+                      feedbackRating === 3 ? '👍 Okay' :
+                        feedbackRating === 2 ? '😐 Could be better' : '😞 Needs improvement'}
+                </p>
+              )}
+
+              {/* Feedback Text */}
+              <textarea
+                value={feedbackText}
+                onChange={(e) => setFeedbackText(e.target.value)}
+                placeholder="Tell us more about your experience (optional)..."
+                className="w-full p-3 border border-gray-300 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent mb-3"
+                rows={3}
+              />
+
+              {/* Submit Button */}
+              <div className="flex space-x-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowFeedbackForm(false);
+                    setFeedbackSubmitted(true);
+                    setMessages(prev => [...prev, {
+                      id: Date.now().toString(),
+                      text: 'You can start a new conversation by clicking "Request Agent" below.',
+                      sender: 'system',
+                      timestamp: new Date()
+                    }]);
+                  }}
+                  className="flex-1 bg-gray-200 text-gray-700 py-3 px-4 rounded-xl font-semibold hover:bg-gray-300 transition-all text-sm"
+                >
+                  Skip
+                </button>
+                <button
+                  type="button"
+                  onClick={submitFeedback}
+                  disabled={feedbackRating === 0}
+                  className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-purple-700 hover:to-indigo-700 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center space-x-2"
+                >
+                  <span>Submit Feedback</span>
+                  {feedbackRating > 0 && <CheckCircle className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
           )}
 
-          {/* Feedback Text */}
-          <textarea
-            value={feedbackText}
-            onChange={(e) => setFeedbackText(e.target.value)}
-            placeholder="Tell us more about your experience (optional)..."
-            className="w-full p-3 border border-gray-300 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent mb-3"
-            rows={3}
-          />
-
-          {/* Submit Button */}
-          <div className="flex space-x-2">
-            <button
-              type="button"
-              onClick={() => {
-                setShowFeedbackForm(false);
-                setFeedbackSubmitted(true);
-                setMessages(prev => [...prev, {
-                  id: Date.now().toString(),
-                  text: 'You can start a new conversation by clicking "Request Agent" below.',
-                  sender: 'system',
-                  timestamp: new Date()
-                }]);
-              }}
-              className="flex-1 bg-gray-200 text-gray-700 py-3 px-4 rounded-xl font-semibold hover:bg-gray-300 transition-all text-sm"
-            >
-              Skip
-            </button>
-            <button
-              type="button"
-              onClick={submitFeedback}
-              disabled={feedbackRating === 0}
-              className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-purple-700 hover:to-indigo-700 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center space-x-2"
-            >
-              <span>Submit Feedback</span>
-              {feedbackRating > 0 && <CheckCircle className="h-4 w-4" />}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Closed Conversation Notice */}
-      {isSessionClosed && !showFeedbackForm && (
-        <div className="px-4 py-5 bg-gradient-to-br from-gray-50 to-gray-100 border-t-2 border-gray-300">
-          <div className="text-center">
-            <div className="inline-flex items-center justify-center w-14 h-14 bg-green-100 rounded-full mb-3">
-              <CheckCircle className="h-7 w-7 text-green-600" />
+          {/* Closed Conversation Notice */}
+          {isSessionClosed && !showFeedbackForm && (
+            <div className="px-4 py-5 bg-gradient-to-br from-gray-50 to-gray-100 border-t-2 border-gray-300">
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center w-14 h-14 bg-green-100 rounded-full mb-3">
+                  <CheckCircle className="h-7 w-7 text-green-600" />
+                </div>
+                <h3 className="text-base font-bold text-gray-900 mb-2">
+                  {feedbackSubmitted ? 'Thank you for your feedback!' : 'Conversation Closed'}
+                </h3>
+                <p className="text-sm text-gray-600 mb-5 max-w-xs mx-auto">
+                  {feedbackSubmitted
+                    ? 'Your feedback helps us provide better support. Feel free to start a new conversation anytime.'
+                    : 'This conversation has been marked as closed. Need more help?'}
+                </p>
+                <button
+                  onClick={() => {
+                    setIsSessionClosed(false);
+                    setFeedbackSubmitted(false);
+                    setShowFeedbackForm(false);
+                    setFeedbackRating(0);
+                    setFeedbackText('');
+                    setMessages([]);
+                    setSessionId(null);
+                    setClosedSessionId(null);
+                    setRequestStatus('idle');
+                    setShowIssueSelector(true);
+                  }}
+                  className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3.5 px-4 rounded-xl font-semibold hover:from-purple-700 hover:to-indigo-700 transition-all shadow-lg transform hover:scale-[1.02]"
+                >
+                  Start New Conversation
+                </button>
+              </div>
             </div>
-            <h3 className="text-base font-bold text-gray-900 mb-2">
-              {feedbackSubmitted ? 'Thank you for your feedback!' : 'Conversation Closed'}
-            </h3>
-            <p className="text-sm text-gray-600 mb-5 max-w-xs mx-auto">
-              {feedbackSubmitted 
-                ? 'Your feedback helps us provide better support. Feel free to start a new conversation anytime.'
-                : 'This conversation has been marked as closed. Need more help?'}
-            </p>
-            <button
-              onClick={() => {
-                setIsSessionClosed(false);
-                setFeedbackSubmitted(false);
-                setShowFeedbackForm(false);
-                setFeedbackRating(0);
-                setFeedbackText('');
-                setMessages([]);
-                setSessionId(null);
-                setClosedSessionId(null);
-                setRequestStatus('idle');
-                setShowIssueSelector(true);
-              }}
-              className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3.5 px-4 rounded-xl font-semibold hover:from-purple-700 hover:to-indigo-700 transition-all shadow-lg transform hover:scale-[1.02]"
-            >
-              Start New Conversation
-            </button>
-          </div>
-        </div>
-      )}
+          )}
 
-      {/* Input */}
-      {!isSessionClosed && (
-      <form onSubmit={sendMessage} className="p-4 border-t border-gray-200 bg-white rounded-b-2xl">
-        <div className="flex items-center space-x-2">
-          <input
-            type="text"
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            placeholder={requestStatus === 'connected' ? "Type your message..." : "Waiting for agent..."}
-            className="flex-1 px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:bg-gray-100"
-            disabled={requestStatus !== 'connected'}
-          />
-          <button
-            type="submit"
-            disabled={requestStatus !== 'connected' || !inputMessage.trim()}
-            className="bg-purple-600 text-white rounded-full p-2 hover:bg-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Send className="h-5 w-5" />
-          </button>
-        </div>
-        </form>
-      )}
+          {/* Input */}
+          {!isSessionClosed && (
+            <div className="p-4 bg-white border-t border-gray-100">
+              <form
+                onSubmit={sendMessage}
+                className="relative group transition-all duration-300"
+              >
+                <div className={`absolute -inset-1 bg-gradient-to-r from-indigo-400 to-blue-500 rounded-2xl blur opacity-0 group-focus-within:opacity-20 transition duration-500 ${requestStatus !== 'connected' ? 'hidden' : ''}`}></div>
+                <div className="relative flex items-center space-x-2 bg-gray-50 rounded-2xl p-1.5 border border-gray-100 group-focus-within:border-indigo-200 group-focus-within:bg-white transition-all">
+                  <input
+                    type="text"
+                    value={inputMessage}
+                    onChange={(e) => setInputMessage(e.target.value)}
+                    placeholder={requestStatus === 'connected' ? "Message our team..." : "Wait for an agent..."}
+                    className="flex-1 bg-transparent px-4 py-2 text-sm text-gray-900 focus:outline-none disabled:cursor-not-allowed"
+                    disabled={requestStatus !== 'connected'}
+                  />
+                  <button
+                    type="submit"
+                    disabled={requestStatus !== 'connected' || !inputMessage.trim()}
+                    className="w-10 h-10 flex items-center justify-center bg-gradient-to-br from-indigo-500 to-blue-600 text-white rounded-xl shadow-md hover:shadow-lg hover:shadow-indigo-500/30 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed transition-all"
+                  >
+                    <Send className={`h-4.5 w-4.5 ${inputMessage.trim() ? 'animate-bounce-short' : ''}`} />
+                  </button>
+                </div>
+              </form>
+              <div className="flex items-center justify-center space-x-2 mt-3">
+                <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest flex items-center">
+                  <ShieldCheck className="h-3 w-3 mr-1 text-green-400" />
+                  Secure & Private
+                </span>
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>

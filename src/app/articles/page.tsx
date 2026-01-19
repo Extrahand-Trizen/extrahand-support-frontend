@@ -33,53 +33,53 @@ export default async function ArticlesPage() {
       ) : (
         <div className="grid gap-6">
           {articles.map((article) => (
-          <Link
-            key={article.id}
-            href={`/article/${article.id}`}
-            className="bg-white rounded-xl border-2 border-gray-200 p-6 hover:border-primary hover:shadow-lg transition-all group"
-          >
-            <div className="flex items-start justify-between gap-6">
-              {/* Article Image Thumbnail */}
-              {article.imageUrl && (
-                <div className="flex-shrink-0">
-                  <ArticleImage 
-                    src={article.imageUrl} 
-                    alt={article.title}
-                    className="w-48 h-32 object-cover rounded-lg"
-                  />
-                </div>
-              )}
-              
-              <div className="flex-1">
-                <div className="flex items-center space-x-2 mb-2">
-                  <span className="text-xs font-medium text-primary bg-yellow-100 px-2.5 py-0.5 rounded-full">
-                    {article.category}
-                  </span>
-                </div>
-                <h2 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-primary-dark transition-colors">
-                  {article.title}
-                </h2>
-                <p className="text-sm text-gray-600 mb-3 line-clamp-2">{article.description}</p>
-                <div className="flex items-center space-x-4 text-sm text-gray-500">
-                  <div className="flex items-center space-x-1">
-                    <Clock className="h-4 w-4" />
-                    <span>
-                      {new Date(article.updatedAt).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric',
-                      })}
+            <Link
+              key={article.id}
+              href={`/article/${article.id}`}
+              className="bg-white rounded-xl border-2 border-gray-200 p-6 hover:border-primary hover:shadow-lg transition-all group"
+            >
+              <div className="flex flex-col sm:flex-row items-start gap-6">
+                {/* Article Image Thumbnail */}
+                {article.imageUrl && (
+                  <div className="w-full sm:w-48 flex-shrink-0">
+                    <ArticleImage
+                      src={article.imageUrl}
+                      alt={article.title}
+                      className="w-full h-48 sm:h-32 object-cover rounded-lg shadow-sm"
+                    />
+                  </div>
+                )}
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <span className="text-xs font-medium text-primary bg-yellow-100 px-2.5 py-0.5 rounded-full">
+                      {article.category}
                     </span>
                   </div>
-                  <div className="flex items-center space-x-1">
-                    <Eye className="h-4 w-4" />
-                    <span>{article.views} views</span>
+                  <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 group-hover:text-primary-dark transition-colors">
+                    {article.title}
+                  </h2>
+                  <p className="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed">{article.description}</p>
+                  <div className="flex items-center space-x-4 text-xs sm:text-sm text-gray-500">
+                    <div className="flex items-center space-x-1">
+                      <Clock className="h-4 w-4" />
+                      <span>
+                        {new Date(article.updatedAt).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                        })}
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Eye className="h-4 w-4" />
+                      <span>{article.views} views</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          ))}
         </div>
       )}
     </div>
