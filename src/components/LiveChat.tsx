@@ -774,10 +774,10 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
                           </p>
                         )}
                       </div>
-                      <span className="text-[10px] font-bold text-indigo-600 group-hover:translate-x-1 transition-transform inline-flex items-center">
-                        Full Transcript <ChevronRight className="h-3 w-3 ml-1" />
-                      </span>
-                    </div>
+                    )}
+                    <span className="text-[10px] font-bold text-indigo-600 group-hover:translate-x-1 transition-transform inline-flex items-center">
+                      Full Transcript <ChevronRight className="h-3 w-3 ml-1" />
+                    </span>
                   </div>
                 ))}
               </div>
