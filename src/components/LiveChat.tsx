@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, X, User, Headphones, LogIn, History, MessageSquare, ArrowLeft, CheckCircle, Star } from 'lucide-react';
+import { Send, X, User, Headphones, LogIn, History, MessageSquare, ArrowLeft, CheckCircle, Star, ChevronRight, ShieldCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import IssueSelector from './IssueSelector';
 import { formatToIST, formatTimeToIST, formatDateToIST } from '../lib/dateUtils';
