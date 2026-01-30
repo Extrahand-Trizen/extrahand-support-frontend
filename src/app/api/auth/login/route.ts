@@ -2,11 +2,13 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
-    // Get backend URL from environment - prioritize BACKEND_API_URL for server-side
-    // This must be set in CapRover environment variables
-    const BACKEND_URL = process.env.BACKEND_API_URL || 
-                       process.env.NEXT_PUBLIC_API_URL || 
-                       'http://localhost:5001';
+    // Support backend URL (auth, contact) – not the content admin / articles backend
+    const BACKEND_URL =
+      process.env.SUPPORT_API_URL ||
+      process.env.NEXT_PUBLIC_SUPPORT_API_URL ||
+      process.env.BACKEND_API_URL ||
+      process.env.NEXT_PUBLIC_API_URL ||
+      'http://localhost:5001';
     
     // Log for debugging (remove in production if needed)
     console.log('Backend URL:', BACKEND_URL);

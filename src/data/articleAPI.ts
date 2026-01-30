@@ -1,9 +1,9 @@
 import { Article } from '@/types';
-import { getApiBaseUrl } from '@/lib/apiBaseUrl';
+import { getArticlesApiBaseUrl } from '@/lib/apiBaseUrl';
 
 export async function fetchArticlesFromAPI(): Promise<Article[]> {
   try {
-    const API_BASE_URL = await getApiBaseUrl();
+    const API_BASE_URL = await getArticlesApiBaseUrl();
     const response = await fetch(`${API_BASE_URL}/api/articles`, {
       cache: 'no-store',
       headers: {
@@ -47,7 +47,7 @@ export async function fetchArticlesFromAPI(): Promise<Article[]> {
 
 export async function fetchArticlesByCategoryFromAPI(category: string): Promise<Article[]> {
   try {
-    const API_BASE_URL = await getApiBaseUrl();
+    const API_BASE_URL = await getArticlesApiBaseUrl();
     const response = await fetch(`${API_BASE_URL}/api/articles?category=${encodeURIComponent(category)}`, {
       cache: 'no-store',
       headers: {
@@ -90,6 +90,7 @@ export async function fetchArticlesByCategoryFromAPI(category: string): Promise<
 
 export async function fetchArticleByIdFromAPI(id: string): Promise<Article | null> {
   try {
+    const API_BASE_URL = await getArticlesApiBaseUrl();
     const response = await fetch(`${API_BASE_URL}/api/articles/${id}`, {
       cache: 'no-store',
       headers: {
@@ -130,7 +131,7 @@ export async function fetchArticleByIdFromAPI(id: string): Promise<Article | nul
 
 export async function fetchCategoriesFromAPI(): Promise<string[]> {
   try {
-    const API_BASE_URL = await getApiBaseUrl();
+    const API_BASE_URL = await getArticlesApiBaseUrl();
     const response = await fetch(`${API_BASE_URL}/api/articles/categories/list`, {
       cache: 'no-store',
       headers: {
