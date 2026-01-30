@@ -111,7 +111,9 @@ export default function HomePage() {
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        const response = await fetch('http://localhost:5001/api/articles');
+        const { getApiBaseUrl } = await import('@/lib/apiBaseUrl');
+        const API_BASE_URL = await getApiBaseUrl();
+        const response = await fetch(`${API_BASE_URL}/api/articles`);
         const result = await response.json();
         if (result.success) {
           setArticles(result.data);
