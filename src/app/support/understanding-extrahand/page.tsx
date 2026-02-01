@@ -1,9 +1,9 @@
 'use client';
 
-import DynamicCategoryContent from '@/components/DynamicCategoryContent';
+import HierarchicalCategoryContent from '@/components/HierarchicalCategoryContent';
 import { BookOpen } from 'lucide-react';
 
 export default function UnderstandingExtraHandPage() {
-  return <DynamicCategoryContent categoryName="Understanding ExtraHand" icon={BookOpen} />;
+  return <HierarchicalCategoryContent categoryName="Understanding ExtraHand" icon={BookOpen} />;
 }
 

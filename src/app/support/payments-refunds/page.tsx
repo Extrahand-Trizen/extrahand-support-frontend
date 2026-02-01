@@ -1,9 +1,9 @@
 'use client';
 
-import DynamicCategoryContent from '@/components/DynamicCategoryContent';
+import HierarchicalCategoryContent from '@/components/HierarchicalCategoryContent';
 import { CreditCard } from 'lucide-react';
 
 export default function PaymentsRefundsPage() {
-  return <DynamicCategoryContent categoryName="Payments & Refunds" icon={CreditCard} />;
+  return <HierarchicalCategoryContent categoryName="Payments & Refunds" icon={CreditCard} />;
 }
 

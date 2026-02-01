@@ -113,10 +113,17 @@ export default function HomePage() {
       try {
         const { getArticlesApiBaseUrl } = await import('@/lib/apiBaseUrl');
         const API_BASE_URL = await getArticlesApiBaseUrl();
-        const response = await fetch(`${API_BASE_URL}/api/articles`);
-        const result = await response.json();
-        if (result.success) {
-          setArticles(result.data);
+        const response = await fetch(`${API_BASE_URL}/api/articles`, {
+          cache: 'no-store',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success && result.data) {
+            setArticles(result.data);
+          }
         }
       } catch (error) {
         console.error('Error fetching articles:', error);

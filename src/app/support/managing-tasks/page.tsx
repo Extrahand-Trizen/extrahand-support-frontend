@@ -1,9 +1,9 @@
 'use client';
 
-import DynamicCategoryContent from '@/components/DynamicCategoryContent';
+import HierarchicalCategoryContent from '@/components/HierarchicalCategoryContent';
 import { FileText } from 'lucide-react';
 
 export default function ManagingTasksPage() {
-  return <DynamicCategoryContent categoryName="Managing Tasks" icon={FileText} />;
+  return <HierarchicalCategoryContent categoryName="Managing Tasks" icon={FileText} />;
 }
 

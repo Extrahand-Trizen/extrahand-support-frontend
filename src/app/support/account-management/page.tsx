@@ -1,9 +1,9 @@
 'use client';
 
-import DynamicCategoryContent from '@/components/DynamicCategoryContent';
+import HierarchicalCategoryContent from '@/components/HierarchicalCategoryContent';
 import { Users } from 'lucide-react';
 
 export default function AccountManagementPage() {
-  return <DynamicCategoryContent categoryName="Login/Account Management" icon={Users} />;
+  return <HierarchicalCategoryContent categoryName="Login/Account Management" icon={Users} />;
 }
 

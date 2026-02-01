@@ -1,9 +1,9 @@
 'use client';
 
-import DynamicCategoryContent from '@/components/DynamicCategoryContent';
+import HierarchicalCategoryContent from '@/components/HierarchicalCategoryContent';
 import { Lightbulb } from 'lucide-react';
 
 export default function TipsCustomersPage() {
-  return <DynamicCategoryContent categoryName="Tips for Customers" icon={Lightbulb} />;
+  return <HierarchicalCategoryContent categoryName="Tips for Customers" icon={Lightbulb} />;
 }
 

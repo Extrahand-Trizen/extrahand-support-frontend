@@ -1,9 +1,9 @@
 'use client';
 
-import DynamicCategoryContent from '@/components/DynamicCategoryContent';
+import HierarchicalCategoryContent from '@/components/HierarchicalCategoryContent';
 import { Shield } from 'lucide-react';
 
 export default function TrustSafetyPage() {
-  return <DynamicCategoryContent categoryName="Trust & Safety" icon={Shield} />;
+  return <HierarchicalCategoryContent categoryName="Trust & Safety" icon={Shield} />;
 }
 

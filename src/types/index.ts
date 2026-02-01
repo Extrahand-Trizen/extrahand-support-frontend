@@ -4,6 +4,8 @@ export interface Article {
   description: string;
   content: string;
   category: string;
+  subCategory?: string;
+  subSubCategory?: string;
   imageUrl?: string;
   createdAt: string;
   updatedAt: string;
