@@ -62,9 +62,19 @@ export default function HierarchicalCategoryContent({ categoryName, icon: Icon }
         ).filter(Boolean) as string[]
         : [];
 
-    // Get articles for the selected sub-subcategory
+    // Articles that belong to subcategory but have no sub-subcategory (empty/undefined)
+    const DIRECT_SUBSUBCAT = '__direct__';
+    const directArticles = selectedSubCategory
+        ? articles.filter(a => a.subCategory === selectedSubCategory && !a.subSubCategory)
+        : [];
+
+    // Get articles for the selected sub-subcategory (or direct articles when no sub-subcategory)
     const filteredArticles = articles.filter(a => {
-        if (selectedSubCategory && selectedSubSubCategory) {
+        if (!selectedSubCategory) return false;
+        if (selectedSubSubCategory === DIRECT_SUBSUBCAT) {
+            return a.subCategory === selectedSubCategory && !a.subSubCategory;
+        }
+        if (selectedSubSubCategory) {
             return a.subCategory === selectedSubCategory && a.subSubCategory === selectedSubSubCategory;
         }
         return false;
@@ -91,6 +101,15 @@ export default function HierarchicalCategoryContent({ categoryName, icon: Icon }
             }
         }
 
+        // If no sub-subcategories but exactly one direct article, open it directly.
+        const direct = articles.filter(a => a.subCategory === subCategory && !a.subSubCategory);
+        if (subSubCats.length === 0 && direct.length === 1) {
+            setSelectedSubCategory(subCategory);
+            setSelectedSubSubCategory(DIRECT_SUBSUBCAT);
+            setSelectedArticle(direct[0]);
+            return;
+        }
+
         setSelectedSubCategory(subCategory);
         setSelectedSubSubCategory(null);
         setSelectedArticle(null);
@@ -110,6 +129,12 @@ export default function HierarchicalCategoryContent({ categoryName, icon: Icon }
     };
 
     const handleArticleSelect = (article: Article) => {
+        setSelectedArticle(article);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleDirectArticleSelect = (article: Article) => {
+        setSelectedSubSubCategory(DIRECT_SUBSUBCAT);
         setSelectedArticle(article);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
@@ -242,6 +267,18 @@ export default function HierarchicalCategoryContent({ categoryName, icon: Icon }
                                         </h2>
                                     </button>
                                 ))
+                            ) : directArticles.length > 0 ? (
+                                directArticles.map((article) => (
+                                    <button
+                                        key={article.id}
+                                        onClick={() => handleDirectArticleSelect(article)}
+                                        className="block w-full text-left group"
+                                    >
+                                        <h2 className="text-lg font-normal text-gray-900 group-hover:text-yellow-600 transition-colors">
+                                            {article.title}
+                                        </h2>
+                                    </button>
+                                ))
                             ) : (
                                 <p className="text-gray-600">No topics available in this section.</p>
                             )}
@@ -271,10 +308,10 @@ export default function HierarchicalCategoryContent({ categoryName, icon: Icon }
                                 {selectedSubCategory}
                             </button>
                             <ChevronRight className="h-4 w-4 text-gray-400" />
-                            <span className="text-gray-700">{selectedSubSubCategory}</span>
+                            <span className="text-gray-700">{selectedSubSubCategory === DIRECT_SUBSUBCAT ? 'Articles' : selectedSubSubCategory}</span>
                         </nav>
 
-                        <h1 className="text-3xl font-bold text-gray-900 mb-12">{selectedSubSubCategory}</h1>
+                        <h1 className="text-3xl font-bold text-gray-900 mb-12">{selectedSubSubCategory === DIRECT_SUBSUBCAT ? 'Articles' : selectedSubSubCategory}</h1>
 
                         <div className="space-y-6">
                             {filteredArticles.length > 0 ? (
@@ -319,7 +356,7 @@ export default function HierarchicalCategoryContent({ categoryName, icon: Icon }
                             </button>
                             <ChevronRight className="h-4 w-4 text-gray-400" />
                             <button onClick={() => setSelectedArticle(null)} className="text-yellow-600 hover:text-yellow-700">
-                                {selectedSubSubCategory}
+                                {selectedSubSubCategory === DIRECT_SUBSUBCAT ? 'Articles' : selectedSubSubCategory}
                             </button>
                         </nav>
                     </div>
