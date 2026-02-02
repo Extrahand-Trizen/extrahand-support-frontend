@@ -38,6 +38,7 @@ export async function fetchArticlesFromAPI(): Promise<Article[]> {
         updatedAt: article.updatedAt,
         views: article.views || 0,
         content: article.content || '',
+        author: article.author || 'ExtraHand Team',
       }));
 
     return articles;
@@ -83,6 +84,7 @@ export async function fetchArticlesByCategoryFromAPI(category: string): Promise<
         updatedAt: article.updatedAt,
         views: article.views || 0,
         content: article.content || '',
+        author: article.author || 'ExtraHand Team',
       }));
 
     return articles;
@@ -128,6 +130,7 @@ export async function fetchArticleByIdFromAPI(id: string): Promise<Article | nul
       updatedAt: article.updatedAt,
       views: article.views,
       content: article.content,
+      author: article.author || 'ExtraHand Team',
     };
   } catch (error) {
     console.error('Error fetching article from API:', error);

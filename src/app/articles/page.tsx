@@ -59,7 +59,10 @@ export default async function ArticlesPage() {
                   <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 group-hover:text-primary-dark transition-colors">
                     {article.title}
                   </h2>
-                  <p className="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed">{article.description}</p>
+                  <p className="text-sm text-gray-600 mb-2 line-clamp-2 leading-relaxed">{article.description}</p>
+                  <div className="text-xs text-gray-500 mb-3">
+                    By <span className="font-medium text-gray-700">{article.author || 'ExtraHand Team'}</span>
+                  </div>
                   <div className="flex items-center space-x-4 text-xs sm:text-sm text-gray-500">
                     <div className="flex items-center space-x-1">
                       <Clock className="h-4 w-4" />

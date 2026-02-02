@@ -40,6 +40,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
     notFound();
   }
 
+  console.log('Article data:', article);
+  console.log('Article author:', article.author);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-gray-50 to-white">
       {/* Breadcrumb & Back Navigation */}
@@ -104,6 +107,10 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
 
                 <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                   <div className="flex items-center space-x-4 text-xs text-gray-500">
+                    <div className="flex items-center space-x-1.5">
+                      <span className="text-gray-400">By</span>
+                      <span className="font-medium text-gray-700">{article.author || 'ExtraHand Team'}</span>
+                    </div>
                     <div className="flex items-center space-x-1.5">
                       <Clock className="h-3.5 w-3.5" />
                       <span>

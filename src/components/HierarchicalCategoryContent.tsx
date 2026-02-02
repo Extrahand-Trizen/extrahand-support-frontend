@@ -369,6 +369,8 @@ function ArticleDisplay({ article }: { article: Article }) {
             <h1 className="text-4xl font-bold text-gray-900 mb-4">{article.title}</h1>
             
             <div className="flex items-center space-x-4 text-sm text-gray-600 mb-8">
+                <span className="font-medium text-gray-700">By {article.author || 'ExtraHand Team'}</span>
+                <span>·</span>
                 <span>{new Date(article.updatedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
                 <span>·</span>
                 <span>Updated</span>

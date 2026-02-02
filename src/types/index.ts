@@ -10,6 +10,7 @@ export interface Article {
   createdAt: string;
   updatedAt: string;
   views: number;
+  author?: string;
 }
 
 export interface Category {
