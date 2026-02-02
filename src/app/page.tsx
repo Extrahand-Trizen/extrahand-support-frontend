@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import {
-  Search, BookOpen, CreditCard, Shield, Users, FileText, BookMark,
+  Search, BookOpen, CreditCard, Shield, Users, FileText, Bookmark,
   MessageCircle, Sparkles, TrendingUp, Clock,
   CheckCircle2, ChevronDown, ChevronRight, Zap, Award,
   HeartHandshake, Lightbulb, Bot, X, Loader2, ArrowRight
@@ -62,7 +62,7 @@ const INITIAL_CATEGORIES = [
   {
     title: 'Extrahand Guidelines',
     description: 'Platform rules, terms of service & community standards',
-    icon: BookMark,
+    icon: Bookmark,
     href: '/support/guidelines',
     color: 'from-indigo-400 to-indigo-600',
     key: 'Extrahand Guidelines'
