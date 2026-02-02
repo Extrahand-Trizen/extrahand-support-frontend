@@ -28,6 +28,10 @@ const categoryInfo: Record<string, { title: string; description: string }> = {
     title: 'Trust & Safety',
     description: 'Stay safe on ExtraHand',
   },
+  'extrahand-guidelines': {
+    title: 'Extrahand Guidelines',
+    description: 'Platform rules, terms of service & community standards',
+  },
 };
 
 export function generateStaticParams() {

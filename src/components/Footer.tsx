@@ -88,6 +88,11 @@ export default function Footer() {
                   Trust & Safety
                 </Link>
               </li>
+              <li>
+                <Link href="/support/guidelines" className="text-gray-600 hover:text-primary-dark transition-colors">
+                  Extrahand Guidelines
+                </Link>
+              </li>
             </ul>
           </div>
 
