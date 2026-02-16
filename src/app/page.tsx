@@ -335,7 +335,7 @@ export default function HomePage() {
           <p className="text-gray-600">Find answers quickly with our organized support topics</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="flex flex-wrap justify-center gap-5">
           {INITIAL_CATEGORIES.map((category) => {
             const Icon = category.icon;
             const categoryArticles = getArticlesForCategory(category.key);
@@ -344,7 +344,7 @@ export default function HomePage() {
               <Link
                 key={category.href}
                 href={category.href}
-                className="group bg-white rounded-xl p-5 hover:shadow-lg transition-all duration-300 border border-gray-200 hover:border-yellow-300"
+                className="group bg-white rounded-xl p-5 hover:shadow-lg transition-all duration-300 border border-gray-200 hover:border-yellow-300 w-full md:w-[calc(50%-1.25rem)] lg:w-[calc(33.333%-1.25rem)]"
               >
                 <div className="flex items-start space-x-3 mb-3">
                   <div className={`w-11 h-11 bg-gradient-to-br ${category.color} rounded-xl flex items-center justify-center flex-shrink-0 shadow-md group-hover:shadow-lg transition-all`}>

@@ -1,17 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Mail, Phone, MessageCircle, Send, CheckCircle, ChevronDown } from 'lucide-react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Mail, Phone, MessageCircle, Send, CheckCircle, ChevronDown, AlertCircle } from 'lucide-react';
 import LiveChat from '@/components/LiveChat';
 
-export default function ContactPage() {
+
+
+function ContactPageContent() {
+  const searchParams = useSearchParams();
   const [isLiveChatOpen, setIsLiveChatOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     subject: '',
     message: '',
+    priority: 'medium'
   });
+
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -29,36 +35,70 @@ export default function ContactPage() {
     };
   }, [isLiveChatOpen]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Handle URL params for auto-fill and auto-submit
+  useEffect(() => {
+    const full_name = searchParams.get('full_name');
+    const email = searchParams.get('email');
+    const subject = searchParams.get('subject');
+    const message = searchParams.get('message');
+    // Priority might not be in URL, strict validation on fields
+
+    if (full_name || email || subject || message) {
+      const newData = {
+        name: full_name || '',
+        email: email || '',
+        subject: subject || '',
+        message: message || '',
+        priority: 'medium'
+      };
+      setFormData(newData);
+
+      // Auto-submit if all required fields are present
+      if (full_name && email && subject && message) {
+        submitInquiry(newData);
+      }
+    }
+  }, [searchParams]);
+
+  const submitInquiry = async (dataPayload: any) => {
     setLoading(true);
     setError('');
 
     try {
-      const response = await fetch('/api/contact', {
+      // Map 'name' to 'full_name' if backend expects full_name
+      const payload = {
+        ...dataPayload,
+        full_name: dataPayload.name // Backend likely expects full_name based on InquiryForm logic
+      };
+
+      const response = await fetch('http://localhost:8001/api/inquiries', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to submit message');
+      if (response.ok && data.success) {
+        setSubmitted(true);
+        setFormData({ name: '', email: '', subject: '', message: '', priority: 'medium' });
+        // Optional: Reset submitted state after delay, or keep success screen?
+        // User liked "Message Logged" screen. We keep it. 
+      } else {
+        setError(data.error || 'Failed to submit message');
       }
-
-      setSubmitted(true);
-      setTimeout(() => {
-        setSubmitted(false);
-        setFormData({ name: '', email: '', subject: '', message: '' });
-      }, 5000);
     } catch (err: any) {
       setError(err.message || 'Failed to submit message. Please try again.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    submitInquiry(formData);
   };
 
   const handleChange = (
@@ -152,7 +192,7 @@ export default function ContactPage() {
         <div className="max-w-3xl mx-auto">
           <div className="bg-white rounded-[1.5rem] sm:rounded-[2rem] border border-gray-100 p-6 sm:p-10 shadow-xl shadow-gray-200/40 relative overflow-hidden">
             {/* Subtle background flair */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50/30 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-amber-50/30 rounded-full -mr-32 -mt-32 blur-3xl"></div>
 
             <div className="relative z-10">
               <div className="flex items-center space-x-3 mb-8">
@@ -175,8 +215,8 @@ export default function ContactPage() {
               )}
 
               {submitted ? (
-                <div className="bg-indigo-50/50 backdrop-blur-sm border border-indigo-100 rounded-3xl p-10 text-center animate-fadeIn">
-                  <div className="w-20 h-20 bg-indigo-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-indigo-600/30">
+                <div className="bg-amber-50/50 backdrop-blur-sm border border-amber-100 rounded-3xl p-10 text-center animate-fadeIn">
+                  <div className="w-20 h-20 bg-amber-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-amber-500/30">
                     <CheckCircle className="h-10 w-10 text-white" />
                   </div>
                   <h3 className="text-2xl font-black text-gray-900 mb-4">
@@ -185,6 +225,12 @@ export default function ContactPage() {
                   <p className="text-gray-600 font-medium leading-relaxed max-w-sm mx-auto">
                     We've securely received your inquiry. One of our experts will review it and get back to you within 24 hours.
                   </p>
+                  <button
+                    onClick={() => setSubmitted(false)}
+                    className="mt-8 px-6 py-3 bg-white text-amber-600 border border-amber-200 rounded-xl font-bold text-sm hover:bg-amber-50 transition-colors"
+                  >
+                    Submit Another
+                  </button>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-8">
@@ -203,7 +249,7 @@ export default function ContactPage() {
                         value={formData.name}
                         onChange={handleChange}
                         required
-                        className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all font-medium text-gray-900"
+                        className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:bg-white focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 outline-none transition-all font-medium text-gray-900"
                         placeholder="e.g. Alexander Pierce"
                       />
                     </div>
@@ -222,7 +268,7 @@ export default function ContactPage() {
                         value={formData.email}
                         onChange={handleChange}
                         required
-                        className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all font-medium text-gray-900"
+                        className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:bg-white focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 outline-none transition-all font-medium text-gray-900"
                         placeholder="alex@domain.com"
                       />
                     </div>
@@ -242,7 +288,7 @@ export default function ContactPage() {
                         value={formData.subject}
                         onChange={handleChange}
                         required
-                        className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all font-bold text-gray-900 appearance-none cursor-pointer"
+                        className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:bg-white focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 outline-none transition-all font-bold text-gray-900 appearance-none cursor-pointer"
                       >
                         <option value="">Choose a specialized topic</option>
                         <option value="account">Account & Privacy Control</option>
@@ -253,6 +299,28 @@ export default function ContactPage() {
                         <option value="other">General Inquiry</option>
                       </select>
                       <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                    </div>
+                  </div>
+
+                  {/* Priority Field Added */}
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
+                      Priority Level
+                    </label>
+                    <div className="grid grid-cols-4 gap-3">
+                      {['low', 'medium', 'high', 'urgent'].map((p) => (
+                        <button
+                          key={p}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, priority: p })}
+                          className={`py-3 px-2 rounded-xl border-2 text-xs sm:text-sm font-bold capitalize transition-all ${formData.priority === p
+                              ? 'bg-amber-500 border-amber-500 text-white shadow-lg shadow-amber-500/30'
+                              : 'bg-white border-gray-100 text-gray-500 hover:border-gray-200 hover:bg-gray-50'
+                            }`}
+                        >
+                          {p}
+                        </button>
+                      ))}
                     </div>
                   </div>
 
@@ -270,7 +338,7 @@ export default function ContactPage() {
                       onChange={handleChange}
                       required
                       rows={6}
-                      className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-3xl focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all font-medium text-gray-900 resize-none"
+                      className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-3xl focus:bg-white focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 outline-none transition-all font-medium text-gray-900 resize-none"
                       placeholder="Please provide comprehensive details about your requirement..."
                     />
                   </div>
@@ -302,5 +370,13 @@ export default function ContactPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ContactPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <ContactPageContent />
+    </Suspense>
   );
 }

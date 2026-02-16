@@ -55,11 +55,19 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
   const [feedbackSubmitted, setFeedbackSubmitted] = useState<boolean>(false);
   const [closedSessionId, setClosedSessionId] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const sessionIdRef = useRef<number | null>(null);
   const router = useRouter();
 
   // Check authentication and initialize customer info
   useEffect(() => {
     if (!isOpen) return;
+
+    // Reset feedback states when opening chat
+    setShowFeedbackForm(false);
+    setFeedbackSubmitted(false);
+    setFeedbackRating(0);
+    setFeedbackText('');
+    setIsSessionClosed(false);
 
     const userStr = localStorage.getItem('user');
     const accessToken = localStorage.getItem('accessToken');
@@ -250,6 +258,7 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
         const newSessionId = data.session_id;
         console.log('🔗 Connecting to WebSocket with session ID:', newSessionId);
         setSessionId(newSessionId);
+        sessionIdRef.current = newSessionId;
         setRequestStatus('waiting');
 
         setMessages([{
@@ -283,6 +292,27 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
     if (!isLoggedIn) {
       return;
     }
+
+    // Reset all chat state for a fresh start
+    setMessages([]);
+    setSessionId(null);
+    sessionIdRef.current = null;
+    setClosedSessionId(null);
+    setIsSessionClosed(false);
+    setShowFeedbackForm(false);
+    setFeedbackSubmitted(false);
+    setFeedbackRating(0);
+    setFeedbackText('');
+    setRequestStatus('idle');
+    setIsConnected(false);
+
+    // Close any existing WebSocket connection
+    if (socket) {
+      socket.close();
+      setSocket(null);
+    }
+
+    // Now show the issue selector
     setShowIssueSelector(true);
   };
 
@@ -360,6 +390,7 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
         }]);
       } else if (data.type === 'session_closed') {
         console.log('[INFO] Session closed by agent');
+        console.log('[INFO] Current sessionId:', sessionId);
 
         // Add closing message
         setMessages(prev => [...prev, {
@@ -373,25 +404,33 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
         setIsConnected(false);
         setIsSessionClosed(true);
 
-        // Store session ID for feedback before clearing it
-        const currentSessionId = sessionId;
+        // Store session ID for feedback - CRITICAL: Use ref to get current value
+        const currentSessionId = sessionIdRef.current;
+        console.log('[INFO] sessionIdRef.current:', currentSessionId);
+        console.log('[INFO] sessionId state:', sessionId);
+
         if (currentSessionId) {
           setClosedSessionId(currentSessionId);
           console.log('[INFO] Stored session ID for feedback:', currentSessionId);
+        } else {
+          console.error('[ERROR] No sessionId available to store for feedback!');
+          console.error('[ERROR] sessionIdRef.current is:', sessionIdRef.current);
+          console.error('[ERROR] sessionId state is:', sessionId);
         }
 
         // Show feedback form immediately
         setShowFeedbackForm(true);
-        setRequestStatus('idle');
+        // Keep requestStatus as 'connected' to show messages, don't reset to 'idle'
 
         // Delay WebSocket cleanup to ensure message is delivered
+        // DON'T clear sessionId here - keep it until feedback is submitted
         setTimeout(() => {
           console.log('[INFO] Cleaning up WebSocket connection');
           if (ws) {
             ws.close();
           }
           setSocket(null);
-          setSessionId(null);
+          // Don't clear sessionId yet - we need it for feedback submission
         }, 2000); // Increased to 2 seconds for better UX
       }
     };
@@ -459,16 +498,23 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
   // Submit feedback
   const submitFeedback = async () => {
     if (feedbackRating === 0) {
-      alert('Please select a rating');
+      alert('Please select a rating before submitting');
       return;
     }
 
     if (!closedSessionId) {
       console.error('No session ID for feedback');
+      alert('Error: No session ID found. Please try again.');
       return;
     }
 
     try {
+      console.log('[Feedback] Submitting feedback:', {
+        sessionId: closedSessionId,
+        rating: feedbackRating,
+        feedback: feedbackText
+      });
+
       const response = await fetch(`http://localhost:8001/api/sessions/${closedSessionId}/feedback`, {
         method: 'POST',
         headers: {
@@ -480,26 +526,37 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
         })
       });
 
+      console.log('[Feedback] Response status:', response.status);
+      const responseData = await response.json();
+      console.log('[Feedback] Response data:', responseData);
+
       if (response.ok) {
+        console.log('[Feedback] Feedback submitted successfully');
         setFeedbackSubmitted(true);
         setShowFeedbackForm(false);
 
         // Add thank you message
         setMessages(prev => [...prev, {
           id: Date.now().toString(),
-          text: 'Thank you for your feedback! You can start a new conversation by clicking "Request Agent" below.',
+          text: 'Thank you for your feedback! You can start a new conversation by clicking "Start New Conversation" below.',
           sender: 'system',
           timestamp: new Date()
         }]);
-
         // Reload history to show updated feedback
         if (customerEmail) {
           loadClosedTickets(customerEmail);
         }
+
+        // Now it's safe to clear the session ID
+        setSessionId(null);
+        sessionIdRef.current = null;
+      } else {
+        console.error('[Feedback] Server returned error:', responseData);
+        alert(`Failed to submit feedback: ${responseData.error || 'Unknown error'}`);
       }
     } catch (error) {
-      console.error('Failed to submit feedback:', error);
-      alert('Failed to submit feedback. Please try again.');
+      console.error('[Feedback] Failed to submit feedback:', error);
+      alert('Failed to submit feedback. Please check your connection and try again.');
     }
   };
 
@@ -758,11 +815,10 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
                             return (
                               <Star
                                 key={star}
-                                className={`h-3 w-3 ${
-                                  star <= rating
-                                    ? 'fill-yellow-400 text-yellow-400'
-                                    : 'text-gray-300'
-                                }`}
+                                className={`h-3 w-3 ${star <= rating
+                                  ? 'fill-yellow-400 text-yellow-400'
+                                  : 'text-gray-300'
+                                  }`}
                               />
                             );
                           })}
@@ -908,7 +964,8 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
           </div>
 
           {/* Feedback Form */}
-          {showFeedbackForm && !feedbackSubmitted && (
+          {showFeedbackForm && !feedbackSubmitted && isSessionClosed && (
+
             <div className="px-4 py-5 bg-gradient-to-br from-purple-50 to-indigo-50 border-t-2 border-purple-300">
               <div className="text-center mb-4">
                 <div className="inline-flex items-center justify-center w-14 h-14 bg-purple-100 rounded-full mb-3">
@@ -969,6 +1026,9 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
                       sender: 'system',
                       timestamp: new Date()
                     }]);
+                    // Clear session ID when skipping feedback
+                    setSessionId(null);
+                    sessionIdRef.current = null;
                   }}
                   className="flex-1 bg-gray-200 text-gray-700 py-3 px-4 rounded-xl font-semibold hover:bg-gray-300 transition-all text-sm"
                 >
@@ -1049,11 +1109,67 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
                   </button>
                 </div>
               </form>
-              <div className="flex items-center justify-center space-x-2 mt-3">
+              <div className="flex items-center justify-between mt-3">
                 <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest flex items-center">
                   <ShieldCheck className="h-3 w-3 mr-1 text-green-400" />
                   Secure & Private
                 </span>
+                {requestStatus === 'connected' && !isSessionClosed && (
+                  <button
+                    onClick={async () => {
+                      if (confirm('Are you sure you want to close this chat session?')) {
+                        try {
+                          await fetch(`http://localhost:8001/api/sessions/${sessionId}/close`, {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                              resolution_note: 'Closed by customer',
+                              resolution_status: 'resolved'
+                            })
+                          });
+
+                          // Add closing message
+                          setMessages(prev => [...prev, {
+                            id: Date.now().toString(),
+                            text: 'You have closed this chat session.',
+                            sender: 'system',
+                            timestamp: new Date()
+                          }]);
+
+                          // Update states
+                          setIsConnected(false);
+                          setIsSessionClosed(true);
+
+                          // Store session ID for feedback using ref
+                          const currentSessionId = sessionIdRef.current;
+                          if (currentSessionId) {
+                            setClosedSessionId(currentSessionId);
+                            console.log('[INFO] User closed - Stored session ID for feedback:', currentSessionId);
+                          }
+
+                          // Show feedback form
+                          setShowFeedbackForm(true);
+                          // Keep requestStatus as 'connected' to show messages
+
+                          // Cleanup WebSocket
+                          if (socket) {
+                            socket.close();
+                          }
+                          setSocket(null);
+                          // Don't clear sessionId - we need it for feedback submission
+                        } catch (error) {
+                          console.error('Failed to close session:', error);
+                        }
+                      }
+                    }}
+                    className="text-[10px] font-bold text-red-500 hover:text-red-700 uppercase tracking-widest flex items-center transition-colors"
+                  >
+                    <X className="h-3 w-3 mr-1" />
+                    Close Chat
+                  </button>
+                )}
               </div>
             </div>
           )}
