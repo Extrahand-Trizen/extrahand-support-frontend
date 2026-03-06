@@ -5,7 +5,7 @@ import { Send, X, User, Headphones, LogIn, History, MessageSquare, ArrowLeft, Ch
 import { useRouter } from 'next/navigation';
 import IssueSelector from './IssueSelector';
 import { formatToIST, formatTimeToIST, formatDateToIST } from '../lib/dateUtils';
-import { getTicketServiceWsUrl } from '@/lib/ticketServiceUrl';
+import { getTicketServiceBaseUrl, getTicketServiceWsUrl } from '@/lib/ticketServiceUrl';
 
 interface Message {
   id: string;
@@ -58,23 +58,12 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const sessionIdRef = useRef<number | null>(null);
   const router = useRouter();
-  const [ticketBaseUrl, setTicketBaseUrl] = useState('http://localhost:8001');
-
-  // Load ticket service URL from config (production uses public URL, not localhost)
-  useEffect(() => {
-    fetch('/api/config')
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.ticketServiceBaseUrl) setTicketBaseUrl(d.ticketServiceBaseUrl);
-      })
-      .catch(() => {});
-  }, []);
+  const ticketBaseUrl = getTicketServiceBaseUrl();
 
   // Check authentication and initialize customer info
   useEffect(() => {
     if (!isOpen) return;
 
-    // Reset feedback states when opening chat
     setShowFeedbackForm(false);
     setFeedbackSubmitted(false);
     setFeedbackRating(0);
@@ -91,9 +80,7 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
         setCustomerEmail(user.email || 'guest@example.com');
         setIsLoggedIn(true);
 
-        // Check if user has an active or previous session
         checkExistingSession(user.email);
-        // Load closed tickets history
         loadClosedTickets(user.email);
       } catch (error) {
         console.error('Failed to parse user data:', error);

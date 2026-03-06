@@ -1,12 +1,12 @@
 /**
- * Ticket / live-chat service base URL. Used by API config and by client components (LiveChat, etc.).
- * Production: public URL so the browser can reach the ticket service. Dev: localhost:8001.
+ * Ticket / live-chat service base URL. Same pattern as supportBackendUrl – use variable, not env.
+ * Production: public URL. Dev: localhost:8001. Used by LiveChat, InquiryForm, contact, /api/config.
  */
 const TICKET_SERVICE_PUBLIC =
-  'https://extrahand-platform-ticket-service-backend.apps.extrahand.in';
+  'https://extrahand-ticket-service-backend.apps.extrahand.in';
 const TICKET_SERVICE_LOCAL = 'http://localhost:8001';
 
-/** Base URL for the ticket service. Used by /api/config (server) and by client via config response. */
+/** Base URL for the ticket service (prod URL in production build, localhost in dev). */
 export function getTicketServiceBaseUrl(): string {
   return process.env.NODE_ENV === 'production'
     ? TICKET_SERVICE_PUBLIC

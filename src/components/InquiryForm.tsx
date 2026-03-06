@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Send, CheckCircle, Mail, User, MessageSquare, AlertCircle } from 'lucide-react';
+import { getTicketServiceBaseUrl } from '@/lib/ticketServiceUrl';
 
 export default function InquiryForm() {
     const searchParams = useSearchParams();
@@ -16,14 +17,6 @@ export default function InquiryForm() {
     const [submitted, setSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [ticketBaseUrl, setTicketBaseUrl] = useState('http://localhost:8001');
-
-    useEffect(() => {
-        fetch('/api/config')
-            .then((r) => r.json())
-            .then((d) => { if (d.ticketServiceBaseUrl) setTicketBaseUrl(d.ticketServiceBaseUrl); })
-            .catch(() => {});
-    }, []);
 
     // Handle URL parameters for auto-filling and auto-submission
     useEffect(() => {
@@ -54,7 +47,7 @@ export default function InquiryForm() {
         setError('');
 
         try {
-            const response = await fetch(`${ticketBaseUrl}/api/inquiries`, {
+            const response = await fetch(`${getTicketServiceBaseUrl()}/api/inquiries`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
