@@ -160,8 +160,8 @@ export default function Chatbot({ isOpen, onClose, sessionId = 'default', initia
               <div>
                 <div
                   className={`rounded-2xl px-4 py-2 ${message.sender === 'user'
-                      ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-gray-900'
-                      : 'bg-gray-100 text-gray-900'
+                    ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-gray-900'
+                    : 'bg-gray-100 text-gray-900'
                     }`}
                 >
                   <p className="text-sm whitespace-pre-wrap">{message.text}</p>

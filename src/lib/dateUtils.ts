@@ -1,7 +1,9 @@
 // Utility functions for consistent IST (Indian Standard Time) formatting
 
 export const formatToIST = (date: Date | string): string => {
+  if (!date) return '';
   const dateObj = typeof date === 'string' ? new Date(date) : date;
+  if (!dateObj || isNaN(dateObj.getTime())) return '';
   return dateObj.toLocaleString('en-IN', {
     timeZone: 'Asia/Kolkata',
     year: 'numeric',
@@ -14,7 +16,9 @@ export const formatToIST = (date: Date | string): string => {
 };
 
 export const formatTimeToIST = (date: Date | string): string => {
+  if (!date) return '';
   const dateObj = typeof date === 'string' ? new Date(date) : date;
+  if (!dateObj || isNaN(dateObj.getTime())) return '';
   return dateObj.toLocaleTimeString('en-IN', {
     timeZone: 'Asia/Kolkata',
     hour: '2-digit',
@@ -24,7 +28,9 @@ export const formatTimeToIST = (date: Date | string): string => {
 };
 
 export const formatDateToIST = (date: Date | string): string => {
+  if (!date) return '';
   const dateObj = typeof date === 'string' ? new Date(date) : date;
+  if (!dateObj || isNaN(dateObj.getTime())) return '';
   return dateObj.toLocaleDateString('en-IN', {
     timeZone: 'Asia/Kolkata',
     year: 'numeric',

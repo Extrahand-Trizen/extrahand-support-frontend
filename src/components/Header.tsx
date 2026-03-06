@@ -137,12 +137,7 @@ export default function Header() {
             >
               Home
             </Link>
-            <Link
-              href="/articles"
-              className="px-4 py-2 text-gray-700 hover:text-yellow-700 hover:bg-yellow-50 rounded-lg transition-all font-medium"
-            >
-              Articles
-            </Link>
+
             <Link
               href="/contact"
               className="px-4 py-2 text-gray-700 hover:text-yellow-700 hover:bg-yellow-50 rounded-lg transition-all font-medium"
@@ -252,13 +247,7 @@ export default function Header() {
               >
                 Home
               </Link>
-              <Link
-                href="/articles"
-                className="px-4 py-2 text-gray-700 hover:text-yellow-700 hover:bg-yellow-50 rounded-lg transition-all font-medium"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                All Articles
-              </Link>
+
               <Link
                 href="/contact"
                 className="px-4 py-2 text-gray-700 hover:text-yellow-700 hover:bg-yellow-50 rounded-lg transition-all font-medium"
