@@ -1,15 +1,9 @@
 import { NextResponse } from 'next/server';
+import { getSupportBackendBaseUrl } from '@/lib/supportBackendUrl';
 
 export async function POST(request: Request) {
   try {
-    // Support backend URL (auth, contact) – not the content admin / articles backend
-    const BACKEND_URL =
-      process.env.SUPPORT_API_URL ||
-      process.env.NEXT_PUBLIC_SUPPORT_API_URL ||
-      process.env.BACKEND_API_URL ||
-      process.env.NEXT_PUBLIC_API_URL ||
-      'http://localhost:5001';
-    
+    const BACKEND_URL = getSupportBackendBaseUrl();
     const body = await request.json();
     const { name, email, subject, message } = body;
 

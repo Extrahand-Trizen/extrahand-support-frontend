@@ -1,16 +1,10 @@
 import { NextResponse } from 'next/server';
+import { getSupportBackendBaseUrl } from '@/lib/supportBackendUrl';
 
 export async function POST(request: Request) {
-  // Read at RUNTIME (not Docker build). Set BACKEND_API_URL in deployment env when container runs.
-  const BACKEND_URL =
-    process.env.SUPPORT_API_URL ||
-    process.env.NEXT_PUBLIC_SUPPORT_API_URL ||
-    process.env.BACKEND_API_URL ||
-    process.env.NEXT_PUBLIC_API_URL ||
-    'http://localhost:5001';
+  const BACKEND_URL = getSupportBackendBaseUrl();
 
   try {
-    
     const body = await request.json();
     const { email, password } = body;
 
