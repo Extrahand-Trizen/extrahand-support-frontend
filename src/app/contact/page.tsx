@@ -21,6 +21,14 @@ function ContactPageContent() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [ticketBaseUrl, setTicketBaseUrl] = useState('http://localhost:8001');
+
+  useEffect(() => {
+    fetch('/api/config')
+      .then((r) => r.json())
+      .then((d) => { if (d.ticketServiceBaseUrl) setTicketBaseUrl(d.ticketServiceBaseUrl); })
+      .catch(() => {});
+  }, []);
 
   // Prevent body scroll when chat is open
   useEffect(() => {
@@ -71,7 +79,7 @@ function ContactPageContent() {
         full_name: dataPayload.name // Backend likely expects full_name based on InquiryForm logic
       };
 
-      const response = await fetch('http://localhost:8001/api/inquiries', {
+      const response = await fetch(`${ticketBaseUrl}/api/inquiries`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

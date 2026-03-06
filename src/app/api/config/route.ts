@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getSupportBackendBaseUrl } from '@/lib/supportBackendUrl';
+import { getTicketServiceBaseUrl } from '@/lib/ticketServiceUrl';
 
 /**
- * Config endpoint. articlesApiBaseUrl from env; supportApiBaseUrl from fixed URL (see supportBackendUrl.ts).
+ * Config endpoint. articlesApiBaseUrl from env; supportApiBaseUrl and ticketServiceBaseUrl from fixed URLs.
  * Use ?check=backend to probe support backend reachability.
  */
 export async function GET(request: Request) {
@@ -11,6 +12,7 @@ export async function GET(request: Request) {
     process.env.NEXT_PUBLIC_ARTICLES_API_URL ||
     'http://localhost:5001';
   const supportApiBaseUrl = getSupportBackendBaseUrl();
+  const ticketServiceBaseUrl = getTicketServiceBaseUrl();
 
   let supportBackendReachable: boolean | null = null;
   let supportBackendError: string | null = null;
@@ -36,6 +38,7 @@ export async function GET(request: Request) {
   return NextResponse.json({
     articlesApiBaseUrl,
     supportApiBaseUrl,
+    ticketServiceBaseUrl,
     ...(supportBackendReachable !== null && {
       supportBackendReachable,
       ...(supportBackendError && { supportBackendError }),

@@ -16,6 +16,14 @@ export default function InquiryForm() {
     const [submitted, setSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [ticketBaseUrl, setTicketBaseUrl] = useState('http://localhost:8001');
+
+    useEffect(() => {
+        fetch('/api/config')
+            .then((r) => r.json())
+            .then((d) => { if (d.ticketServiceBaseUrl) setTicketBaseUrl(d.ticketServiceBaseUrl); })
+            .catch(() => {});
+    }, []);
 
     // Handle URL parameters for auto-filling and auto-submission
     useEffect(() => {
@@ -46,7 +54,7 @@ export default function InquiryForm() {
         setError('');
 
         try {
-            const response = await fetch('http://localhost:8001/api/inquiries', {
+            const response = await fetch(`${ticketBaseUrl}/api/inquiries`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -5,6 +5,7 @@ import { Send, X, User, Headphones, LogIn, History, MessageSquare, ArrowLeft, Ch
 import { useRouter } from 'next/navigation';
 import IssueSelector from './IssueSelector';
 import { formatToIST, formatTimeToIST, formatDateToIST } from '../lib/dateUtils';
+import { getTicketServiceWsUrl } from '@/lib/ticketServiceUrl';
 
 interface Message {
   id: string;
@@ -57,6 +58,17 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const sessionIdRef = useRef<number | null>(null);
   const router = useRouter();
+  const [ticketBaseUrl, setTicketBaseUrl] = useState('http://localhost:8001');
+
+  // Load ticket service URL from config (production uses public URL, not localhost)
+  useEffect(() => {
+    fetch('/api/config')
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.ticketServiceBaseUrl) setTicketBaseUrl(d.ticketServiceBaseUrl);
+      })
+      .catch(() => {});
+  }, []);
 
   // Check authentication and initialize customer info
   useEffect(() => {
@@ -96,7 +108,7 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
   const loadClosedTickets = async (email: string) => {
     try {
       console.log(`[INFO] Loading closed tickets for ${email}`);
-      const response = await fetch(`http://localhost:8001/api/customer/history/${email}`);
+      const response = await fetch(`${ticketBaseUrl}/api/customer/history/${email}`);
       const data = await response.json();
       console.log(`[INFO] Response:`, data);
 
@@ -119,7 +131,7 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
   const checkExistingSession = async (email: string) => {
     try {
       console.log('🔍 Checking for existing session for:', email);
-      const response = await fetch(`http://localhost:8001/api/customer/can-chat/${email}`);
+      const response = await fetch(`${ticketBaseUrl}/api/customer/can-chat/${email}`);
       const data = await response.json();
       console.log('📋 Can chat response:', data);
 
@@ -130,7 +142,7 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
         setRequestStatus('waiting');
 
         // Connect to existing session
-        const wsUrl = `ws://localhost:8001/ws/customer/${data.active_session_id}`;
+        const wsUrl = `${getTicketServiceWsUrl(ticketBaseUrl)}/ws/customer/${data.active_session_id}`;
         console.log('🔌 Reconnecting WebSocket URL:', wsUrl);
         const ws = new WebSocket(wsUrl);
         setupWebSocket(ws);
@@ -145,7 +157,7 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
   const loadTicketMessages = async (ticketId: string) => {
     try {
       console.log(`[INFO] Loading messages for ticket ${ticketId}`);
-      const response = await fetch(`http://localhost:8001/api/ticket/history/${ticketId}`);
+      const response = await fetch(`${ticketBaseUrl}/api/ticket/history/${ticketId}`);
       const data = await response.json();
       console.log(`[INFO] Received ticket data:`, data);
 
@@ -177,7 +189,7 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
     setRequestStatus('requesting');
 
     // Create new session with issue information
-    fetch('http://localhost:8001/api/sessions', {
+    fetch(`${ticketBaseUrl}/api/sessions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -205,7 +217,7 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
         }]);
 
         // Connect to WebSocket to listen for agent
-        const ws = new WebSocket(`ws://localhost:8001/ws/customer/${newSessionId}`);
+        const ws = new WebSocket(`${getTicketServiceWsUrl(ticketBaseUrl)}/ws/customer/${newSessionId}`);
         setupWebSocket(ws);
         setSocket(ws);
       })
@@ -232,7 +244,7 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
     // Request agent with the selected issue
     setRequestStatus('requesting');
 
-    fetch('http://localhost:8001/api/sessions', {
+    fetch(`${ticketBaseUrl}/api/sessions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -269,7 +281,7 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
         }]);
 
         // Connect to WebSocket to listen for agent
-        const wsUrl = `ws://localhost:8001/ws/customer/${newSessionId}`;
+        const wsUrl = `${getTicketServiceWsUrl(ticketBaseUrl)}/ws/customer/${newSessionId}`;
         console.log('🔌 WebSocket URL:', wsUrl);
         const ws = new WebSocket(wsUrl);
         setupWebSocket(ws);
@@ -515,7 +527,7 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
         feedback: feedbackText
       });
 
-      const response = await fetch(`http://localhost:8001/api/sessions/${closedSessionId}/feedback`, {
+      const response = await fetch(`${ticketBaseUrl}/api/sessions/${closedSessionId}/feedback`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1119,7 +1131,7 @@ export default function LiveChat({ isOpen, onClose }: LiveChatProps) {
                     onClick={async () => {
                       if (confirm('Are you sure you want to close this chat session?')) {
                         try {
-                          await fetch(`http://localhost:8001/api/sessions/${sessionId}/close`, {
+                          await fetch(`${ticketBaseUrl}/api/sessions/${sessionId}/close`, {
                             method: 'POST',
                             headers: {
                               'Content-Type': 'application/json',
