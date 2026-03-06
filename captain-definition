@@ -28,7 +28,7 @@
   "forceSsl": true,
   "appName": "extrahand-support-frontend",
   "hasPersistentData": false,
-  "description": "ExtraHand Support Portal Frontend - Modern help center built with Next.js 14",
+  "description": "ExtraHand Support Portal Frontend. Env vars (e.g. BACKEND_API_URL) are applied at container RUNTIME, not at Docker build.",
   "instanceCount": 1,
   "tags": [
     "nextjs",
@@ -44,7 +44,7 @@
     "PORT": "3004",
     "HOSTNAME": "0.0.0.0",
     "NEXT_TELEMETRY_DISABLED": "1",
-    "BACKEND_API_URL": "https://extrahand-support-backend.apps.extrahand.in",
+    "BACKEND_API_URL": "http://srv-captain--extrahand-support-backend:5001",
     "NEXT_PUBLIC_API_URL": "https://extrahand-support-backend.apps.extrahand.in",
     "CHATBOT_API_URL": "YOUR_CHATBOT_SERVICE_URL_HERE"
   },

@@ -58,9 +58,15 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3004
 ENV HOSTNAME="0.0.0.0"
 
-# Note: The following environment variables should be set at runtime via CapRover:
-# - NEXT_PUBLIC_API_URL
-# - CHATBOT_API_URL
+# IMPORTANT: These env vars are NOT used at Docker build time. They must be set at
+# RUNTIME when the container runs (e.g. CapRover App Config → Environmental Variables).
+# The Next.js server reads them on each request; they are not baked into the image.
+#
+# Required for auth/contact proxy (signup, login, contact form):
+#   BACKEND_API_URL=http://srv-captain--extrahand-support-backend:5001
+#
+# Optional (fallbacks exist): SUPPORT_API_URL, NEXT_PUBLIC_SUPPORT_API_URL,
+#   NEXT_PUBLIC_API_URL, ARTICLES_API_URL, NEXT_PUBLIC_ARTICLES_API_URL, CHATBOT_API_URL
 
 # Copy public assets
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public

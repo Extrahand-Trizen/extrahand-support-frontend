@@ -2,9 +2,13 @@ import { NextResponse } from 'next/server';
 
 /**
  * Runtime config endpoint. Returns API base URLs from server env.
+ * These values are read at RUNTIME when the server handles the request (not at Docker
+ * build time). Set BACKEND_API_URL (and optionally others) in your deployment platform
+ * (e.g. CapRover App Config → Environmental Variables) when the container RUNS.
+ *
  * - articlesApiBaseUrl: content admin backend (articles API)
  * - supportApiBaseUrl: support backend (auth, contact) – used by signup/login/contact
- * - supportBackendReachable: result of probing GET /health on support backend (for debugging)
+ * - supportBackendReachable: result of probing GET /health (use ?check=backend)
  */
 export async function GET(request: Request) {
   const articlesApiBaseUrl =

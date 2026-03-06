@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
-  // Support backend URL (auth, contact) – must be reachable from the Next.js server
+  // Read at RUNTIME (not Docker build). Set BACKEND_API_URL in deployment env when container runs.
   const BACKEND_URL =
     process.env.SUPPORT_API_URL ||
     process.env.NEXT_PUBLIC_SUPPORT_API_URL ||
