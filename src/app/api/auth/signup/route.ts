@@ -1,17 +1,15 @@
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
+  // Support backend URL (auth, contact) – must be reachable from the Next.js server
+  const BACKEND_URL =
+    process.env.SUPPORT_API_URL ||
+    process.env.NEXT_PUBLIC_SUPPORT_API_URL ||
+    process.env.BACKEND_API_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    'http://localhost:5001';
+
   try {
-    // Support backend URL (auth, contact) – not the content admin / articles backend
-    const BACKEND_URL =
-      process.env.SUPPORT_API_URL ||
-      process.env.NEXT_PUBLIC_SUPPORT_API_URL ||
-      process.env.BACKEND_API_URL ||
-      process.env.NEXT_PUBLIC_API_URL ||
-      'http://localhost:5001';
-    
-    // Log for debugging (remove in production if needed)
-    console.log('Backend URL:', BACKEND_URL);
     
     const body = await request.json();
     const { name, email, password } = body;
@@ -24,11 +22,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Forward the request to the backend
-    const backendUrl = `${BACKEND_URL}/api/auth/signup`;
-    console.log('Forwarding signup request to:', backendUrl);
-    
-    const response = await fetch(backendUrl, {
+    const response = await fetch(`${BACKEND_URL}/api/auth/signup`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -36,7 +30,13 @@ export async function POST(request: Request) {
       body: JSON.stringify({ name, email, password }),
     });
 
-    const data = await response.json();
+    let data: { error?: string; message?: string; userId?: string } = {};
+    try {
+      const text = await response.text();
+      if (text) data = JSON.parse(text);
+    } catch {
+      console.error('Signup: backend returned non-JSON', response.status, response.statusText);
+    }
 
     if (!response.ok) {
       return NextResponse.json(
@@ -48,11 +48,20 @@ export async function POST(request: Request) {
     // Return the backend response
     return NextResponse.json(data);
 
-  } catch (error) {
-    console.error('Signup error:', error);
+  } catch (error: unknown) {
+    const err = error as Error & { cause?: { code?: string } };
+    console.error('Signup proxy error:', err?.message, err?.cause?.code ?? '', 'Backend URL:', BACKEND_URL);
+    const isUnreachable =
+      err?.cause?.code === 'ECONNREFUSED' ||
+      err?.cause?.code === 'ENOTFOUND' ||
+      err?.message?.includes('fetch failed');
     return NextResponse.json(
-      { error: 'Failed to connect to authentication service' },
-      { status: 500 }
+      {
+        error: isUnreachable
+          ? 'Authentication service is temporarily unavailable. Please try again later.'
+          : 'Failed to connect to authentication service',
+      },
+      { status: 503 }
     );
   }
 }
