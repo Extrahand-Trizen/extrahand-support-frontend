@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Facebook, Twitter, Instagram, Linkedin, Mail } from 'lucide-react';
+import { Facebook, Twitter, Instagram, Linkedin, Mail, Youtube } from 'lucide-react';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -17,17 +17,20 @@ export default function Footer() {
               Your trusted task marketplace connecting people who need help with skilled helpers.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-primary-dark transition-colors">
+              <a href="https://www.facebook.com/profile.php?id=61587931868799" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary-dark transition-colors" aria-label="Facebook">
                 <Facebook className="h-5 w-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-primary-dark transition-colors">
+              <a href="https://x.com/ExtrahandI42141" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary-dark transition-colors" aria-label="X (Twitter)">
                 <Twitter className="h-5 w-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-primary-dark transition-colors">
+              <a href="https://www.instagram.com/extrahand.in/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary-dark transition-colors" aria-label="Instagram">
                 <Instagram className="h-5 w-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-primary-dark transition-colors">
+              <a href="https://www.linkedin.com/company/112403995/admin/dashboard/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary-dark transition-colors" aria-label="LinkedIn">
                 <Linkedin className="h-5 w-5" />
+              </a>
+              <a href="https://www.youtube.com/channel/UCHCIU5Qq0mEdGf8RgJIjCUw" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary-dark transition-colors" aria-label="YouTube">
+                <Youtube className="h-5 w-5" />
               </a>
             </div>
           </div>
@@ -114,10 +117,10 @@ export default function Footer() {
         <div className="border-t border-gray-200 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-600">
           <p>&copy; {currentYear} ExtraHand. All rights reserved.</p>
           <div className="flex space-x-6 mt-4 md:mt-0">
-            <Link href="/privacy" className="hover:text-primary-dark transition-colors">
+            <Link href="/privacy-policy" className="hover:text-primary-dark transition-colors">
               Privacy Policy
             </Link>
-            <Link href="/terms" className="hover:text-primary-dark transition-colors">
+            <Link href="/terms-of-service" className="hover:text-primary-dark transition-colors">
               Terms of Service
             </Link>
           </div>

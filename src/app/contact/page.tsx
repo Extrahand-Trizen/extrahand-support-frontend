@@ -158,10 +158,10 @@ function ContactPageContent() {
               <p className="text-sm text-gray-500 mb-6 font-medium">Mon-Fri, 9AM-6PM IST</p>
               <div className="p-3 bg-gray-50 rounded-xl border border-gray-100 inline-block w-full">
                 <a
-                  href="tel:+911234567890"
+                  href="tel:+916281575094"
                   className="text-emerald-600 hover:text-emerald-800 font-bold text-sm"
                 >
-                  +91 123-456-7890
+                  +91 62815 75094
                 </a>
               </div>
             </div>
