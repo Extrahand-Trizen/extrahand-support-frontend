@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Facebook, Twitter, Instagram, Linkedin, Mail, Youtube } from 'lucide-react';
+import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, Youtube } from 'lucide-react';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -107,6 +107,12 @@ export default function Footer() {
                 <Mail className="h-4 w-4" />
                 <a href="mailto:support@extrahand.in" className="hover:text-primary-dark transition-colors">
                   support@extrahand.in
+                </a>
+              </li>
+              <li className="flex items-center space-x-2 text-gray-600">
+                <Phone className="h-4 w-4" />
+                <a href="tel:+917710247365" className="hover:text-primary-dark transition-colors">
+                  +91 77102 47365
                 </a>
               </li>
             </ul>
